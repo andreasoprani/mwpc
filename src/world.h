@@ -4,14 +4,14 @@
 #include "physics/body.h"
 
 typedef struct World {
-    Body* bodies;
-    int bodiesCapacity;
-    int bodiesLength;
+  Body *bodies;
+  int bodiesCapacity;
+  int bodiesLength;
 } World;
 
-World* createWorld();
-void destroyWorld(World* world);
+World *createWorld();
+void destroyWorld(World *world);
 
-void worldAddBody(World* world, Body* body);
+void worldAddBody(World *world, Body *body);
 
 #endif
