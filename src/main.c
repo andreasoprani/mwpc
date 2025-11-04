@@ -1,4 +1,4 @@
-#include "physics/body.h"
+#include "physics/ball.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "world.h"
@@ -17,77 +17,66 @@ void setupApp() {
   SetTargetFPS(120);
 }
 
-void addRandomBody(World *world) {
+void add_random_ball(World *world) {
   Vector2 position = {GetRandomValue(0, GetScreenWidth()),
                       GetRandomValue(0, GetScreenHeight())};
-  Body *body = bodyCreate(position, 1.0f);
-  worldAddBody(world, body);
+  Ball *ball = ball_create(position, 20.f, 100.f);
+  world_add_ball(world, ball);
 }
 
 void setupWorld() {
-  world = createWorld();
+  world = world_create();
 
-  for (int i = 0; i < 10; i++) {
-    addRandomBody(world);
+  for (int i = 0; i < 20; i++) {
+    add_random_ball(world);
   }
 }
 
 void updateWorld(const float dt) {
   const Vector2 mousePosition = GetMousePosition();
 
-  for (int i = 0; i < world->bodiesLength; i++) {
-    Body *body = &world->bodies[i];
+  // for (int i = 0; i < world->ballsLength; i++) {
+  //   Ball *ball = &world->balls[i];
 
-    const Vector2 position = body->position;
-    const Vector2 distance = Vector2Subtract(mousePosition, position);
-    const float distanceSquared = Vector2LengthSqr(distance);
-    const Vector2 forceDirection = Vector2Normalize(distance);
-    const Vector2 force = Vector2Scale(
-        forceDirection, G * MOUSE_MASS * body->mass / distanceSquared);
+  //   const Vector2 position = ball->position;
+  //   const Vector2 distance = Vector2Subtract(mousePosition, position);
+  //   const float distanceSquared = Vector2LengthSqr(distance);
+  //   const Vector2 forceDirection = Vector2Normalize(distance);
+  //   const Vector2 force = Vector2Scale(
+  //       forceDirection, G * MOUSE_MASS * ball->mass / distanceSquared);
 
-    bodyAddForce(body, force);
-  };
+  //   ball_add_force(ball, force);
+  // };
 
-  for (int i = 0; i < world->bodiesLength; i++) {
-    Body *body = &world->bodies[i];
+  world_update(world, dt);
 
-    bodyIntegrateForces(body, dt);
-    bodyIntegrateVelocity(body, dt);
-  }
-
-  for (int i = 0; i < world->bodiesLength; i++) {
-    Body *body = &world->bodies[i];
+  for (int i = 0; i < world->ballsLength; i++) {
+    Ball *ball = &world->balls[i];
     // awful window boundaries
-    if (body->position.x < 0) {
-      body->position.x = 0;
-      body->velocity.x = -body->velocity.x;
+    if (ball->position.x < 0) {
+      ball->position.x = 0;
+      ball->velocity.x = -ball->velocity.x;
     };
-    if (body->position.y < 0) {
-      body->position.y = 0;
-      body->velocity.y = -body->velocity.y;
+    if (ball->position.y < 0) {
+      ball->position.y = 0;
+      ball->velocity.y = -ball->velocity.y;
     };
-    if (body->position.x > GetScreenWidth()) {
-      body->position.x = GetScreenWidth();
-      body->velocity.x = -body->velocity.x;
+    if (ball->position.x > GetScreenWidth()) {
+      ball->position.x = GetScreenWidth();
+      ball->velocity.x = -ball->velocity.x;
     };
-    if (body->position.y > GetScreenHeight()) {
-      body->position.y = GetScreenHeight();
-      body->velocity.y = -body->velocity.y;
+    if (ball->position.y > GetScreenHeight()) {
+      ball->position.y = GetScreenHeight();
+      ball->velocity.y = -ball->velocity.y;
     };
   };
 }
 
 void render() {
-  BeginDrawing();
-
-  ClearBackground(BLACK);
-
-  for (int i = 0; i < world->bodiesLength; i++) {
-    Body body = world->bodies[i];
-    DrawCircle(body.position.x, body.position.y, 10.f, WHITE);
+  for (int i = 0; i < world->ballsLength; i++) {
+    Ball *ball = &world->balls[i];
+    DrawCircleLines(ball->position.x, ball->position.y, ball->radius, WHITE);
   };
-
-  EndDrawing();
 }
 
 int main() {
@@ -97,8 +86,16 @@ int main() {
 
   while (WindowShouldClose() == false) {
     const float dt = GetFrameTime();
+
+    // Move to rendering
+    BeginDrawing();
+    ClearBackground(BLACK);
+
     updateWorld(dt);
     render();
+
+    // Move to rendering
+    EndDrawing();
   }
 
   CloseWindow();

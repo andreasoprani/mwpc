@@ -1,17 +1,18 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#include "physics/body.h"
+#include "physics/ball.h"
 
 typedef struct World {
-  Body *bodies;
-  int bodiesCapacity;
-  int bodiesLength;
+  Ball *balls;
+  int ballsCapacity;
+  int ballsLength;
 } World;
 
-World *createWorld();
-void destroyWorld(World *world);
+World *world_create();
+void world_destroy(World *world);
+void world_update(World *world, float dt);
 
-void worldAddBody(World *world, Body *body);
+void world_add_ball(World *world, Ball *ball);
 
 #endif
