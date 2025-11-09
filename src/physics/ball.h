@@ -1,11 +1,12 @@
-#ifndef BALL_H
-#define BALL_H
+#ifndef PHYSICS_BALL_H
+#define PHYSICS_BALL_H
 
 #include <raylib.h>
 #include <raymath.h>
 #include <stdbool.h>
 
 typedef struct Ball {
+
   float radius;
 
   Vector2 position;
@@ -26,6 +27,10 @@ typedef struct Ball {
   float inverseInertia;
 
   float restitution;
+  float friction;
+
+  // Debug
+  bool isColliding;
 } Ball;
 
 Ball *ball_create(const Vector2 position, const float radius, const float mass);
@@ -40,22 +45,12 @@ void ball_apply_impulse_linear(Ball *ball, const Vector2 j);
 void ball_apply_impulse_angular(Ball *ball, const float j);
 void ball_apply_impulse_at_point(Ball *ball, const Vector2 j, const Vector2 r);
 
-void ball_integrate_force(Ball *ball, const float dt);
-void ball_integrate_velocity(Ball *ball, const float dt);
+void ball_integrate_forces(Ball *ball, const float dt);
+void ball_integrate_velocities(Ball *ball, const float dt);
 
-Vector2 ballLocalSpaceToWorldSpace(Ball *ball, const Vector2 localPosition);
-Vector2 ballWorldSpaceToLocalSpaceSpace(Ball *ball,
+Vector2 ball_local_space_to_world_space(Ball *ball,
+                                        const Vector2 localPosition);
+Vector2 ball_world_space_to_local_space(Ball *ball,
                                         const Vector2 worldPosition);
-
-typedef struct BallsContact {
-  Ball *ball1;
-  Ball *ball2;
-
-  Vector2 start;
-  Vector2 normal;
-  float depth;
-} BallsContact;
-
-bool balls_are_colliding(Ball *ball1, Ball *ball2, BallsContact *contact);
 
 #endif

@@ -1,11 +1,13 @@
 #include "world.h"
 #include "physics/ball.h"
+#include "physics/collision.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-const float GRAVITATIONAL_CONSTANT = 10;
+const float GRAVITATIONAL_CONSTANT = 20;
+const float CONTACT_SOLVE_ITERATIONS = 10;
 
 World *world_create() {
   World *world = (World *)malloc(sizeof(World));
@@ -41,35 +43,42 @@ void world_update(World *world, float dt) {
     }
   }
 
-  for (int i = 0; i < world->ballsLength - 1; i++)
-    ball_integrate_force(&world->balls[i], dt);
+  for (int i = 0; i < world->ballsLength; i++)
+    ball_integrate_forces(&world->balls[i], dt);
 
   BallsContact contacts[world->ballsLength * (world->ballsLength - 1)];
   int num_contacts = 0;
+
+  for (int i = 0; i < world->ballsLength; i++)
+    (&world->balls[i])->isColliding = false;
 
   for (int i = 0; i < world->ballsLength - 1; i++) {
     Ball *ball_i = &world->balls[i];
     for (int j = i + 1; j < world->ballsLength; j++) {
       Ball *ball_j = &world->balls[j];
 
-      BallsContact contact;
-      if (balls_are_colliding(ball_i, ball_j, &contact)) {
-        contacts[num_contacts] = contact;
+      BallsContact *contact = &contacts[num_contacts];
+      if (balls_are_colliding(ball_i, ball_j, contact)) {
         num_contacts++;
+
+        ball_i->isColliding = true;
+        ball_j->isColliding = true;
       }
     }
   }
 
-  printf("Number of contacts: %d\n", num_contacts);
   for (int i = 0; i < num_contacts; i++) {
-    printf("Contact %d: Start (%f, %f), Normal (%f, %f), Depth %f\n", i,
-           contacts[i].start.x, contacts[i].start.y, contacts[i].normal.x,
-           contacts[i].normal.y, contacts[i].depth);
+    balls_pre_solve_contact(&contacts[i], dt);
   }
-  // constraints solving
 
-  for (int i = 0; i < world->ballsLength - 1; i++)
-    ball_integrate_velocity(&world->balls[i], dt);
+  for (int n = 0; n < CONTACT_SOLVE_ITERATIONS; n++) {
+    for (int i = 0; i < num_contacts; i++) {
+      balls_solve_contact(&contacts[i], dt);
+    }
+  }
+
+  for (int i = 0; i < world->ballsLength; i++)
+    ball_integrate_velocities(&world->balls[i], dt);
 }
 
 void world_add_ball(World *world, Ball *ball) {

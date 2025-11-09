@@ -3,6 +3,9 @@
 #include <stdlib.h>
 
 const float DEFAULT_BALL_RESTITUTION = 0.9f;
+const float DEFAULT_BALL_FRICTION = 0.7f;
+
+#define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
 
 Ball *ball_create(const Vector2 position, const float radius,
                   const float mass) {
@@ -31,6 +34,10 @@ Ball *ball_create(const Vector2 position, const float radius,
     ball->inverseInertia = 0.f;
 
   ball->restitution = DEFAULT_BALL_RESTITUTION;
+  ball->friction = DEFAULT_BALL_FRICTION;
+
+  // Debug
+  ball->isColliding = false;
 
   return ball;
 }
@@ -74,10 +81,10 @@ void ball_apply_impulse_at_point(Ball *ball, const Vector2 j, const Vector2 r) {
 
   ball->velocity =
       Vector2Add(ball->velocity, Vector2Scale(j, ball->inverseMass));
-  ball->angularVelocity += (r.x * j.y - r.y * j.x) * ball->inverseInertia;
+  ball->angularVelocity += CROSS(r, j) * ball->inverseInertia;
 }
 
-void ball_integrate_force(Ball *ball, const float dt) {
+void ball_integrate_forces(Ball *ball, const float dt) {
   if (ball_is_static(ball))
     return;
 
@@ -91,7 +98,7 @@ void ball_integrate_force(Ball *ball, const float dt) {
   ball_clear_forces(ball);
 }
 
-void ball_integrate_velocity(Ball *ball, const float dt) {
+void ball_integrate_velocities(Ball *ball, const float dt) {
   if (ball_is_static(ball))
     return;
 
@@ -99,33 +106,13 @@ void ball_integrate_velocity(Ball *ball, const float dt) {
   ball->rotation += ball->angularVelocity * dt;
 }
 
-Vector2 ballLocalSpaceToWorldSpace(Ball *ball, const Vector2 localPosition) {
+Vector2 ball_local_space_to_world_space(Ball *ball,
+                                        const Vector2 localPosition) {
   return Vector2Add(ball->position,
                     Vector2Rotate(localPosition, ball->rotation));
 }
-Vector2 ballWorldSpaceToLocalSpace(Ball *ball, const Vector2 worldPosition) {
+Vector2 ball_world_space_to_local_space(Ball *ball,
+                                        const Vector2 worldPosition) {
   return Vector2Rotate(Vector2Subtract(worldPosition, ball->position),
                        -ball->rotation);
-}
-
-bool balls_are_colliding(Ball *ball1, Ball *ball2, BallsContact *contact) {
-  const Vector2 ab = Vector2Subtract(ball2->position, ball1->position);
-  const float radiusSum = ball1->radius + ball2->radius;
-  const bool isColliding = Vector2LengthSqr(ab) <= radiusSum * radiusSum;
-
-  if (!isColliding)
-    return false;
-
-  BallsContact newContact;
-
-  newContact.ball1 = ball1;
-  newContact.ball2 = ball2;
-  newContact.normal = Vector2Normalize(ab);
-  newContact.start = Vector2Subtract(
-      ball2->position, Vector2Scale(newContact.normal, ball2->radius));
-  newContact.depth = radiusSum - Vector2Length(ab);
-
-  *contact = newContact;
-
-  return true;
 }
