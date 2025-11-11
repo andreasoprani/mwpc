@@ -39,7 +39,7 @@ bool balls_are_colliding(Ball *ball1, Ball *ball2, Contact *contact) {
 }
 
 bool ball_wall_are_colliding(Ball *ball, Wall *wall, Contact *contact) {
-  const Vector2 start_to_ball = Vector2Subtract(wall->start, ball->position);
+  const Vector2 start_to_ball = Vector2Subtract(ball->position, wall->start);
 
   const Vector2 wall_closest_point = Vector2Add(
       wall->start,
