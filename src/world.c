@@ -9,11 +9,13 @@
 const float GRAVITATIONAL_CONSTANT = 20;
 const float CONTACT_SOLVE_ITERATIONS = 10;
 
-World *world_create() {
+World *world_create(Table *table) {
   World *world = (World *)malloc(sizeof(World));
   world->balls = (Ball *)malloc(100 * sizeof(Ball));
-  world->ballsCapacity = 100;
+  world->ballsCapacity = 10;
   world->ballsLength = 0;
+
+  world->table = table;
   return world;
 };
 
@@ -46,18 +48,22 @@ void world_update(World *world, float dt) {
   for (int i = 0; i < world->ballsLength; i++)
     ball_integrate_forces(&world->balls[i], dt);
 
-  BallsContact contacts[world->ballsLength * (world->ballsLength - 1)];
+  Contact contacts[world->ballsLength * (world->ballsLength - 1) +
+                   (world->ballsLength * world->table->num_walls)];
   int num_contacts = 0;
 
   for (int i = 0; i < world->ballsLength; i++)
     (&world->balls[i])->isColliding = false;
+
+  for (int i = 0; i < world->table->num_walls; i++)
+    (&world->table->walls[i])->isColliding = false;
 
   for (int i = 0; i < world->ballsLength - 1; i++) {
     Ball *ball_i = &world->balls[i];
     for (int j = i + 1; j < world->ballsLength; j++) {
       Ball *ball_j = &world->balls[j];
 
-      BallsContact *contact = &contacts[num_contacts];
+      Contact *contact = &contacts[num_contacts];
       if (balls_are_colliding(ball_i, ball_j, contact)) {
         num_contacts++;
 
@@ -67,13 +73,28 @@ void world_update(World *world, float dt) {
     }
   }
 
+  for (int i = 0; i < world->ballsLength; i++) {
+    Ball *ball = &world->balls[i];
+    for (int j = 0; j < world->table->num_walls; j++) {
+      Wall *wall = &world->table->walls[j];
+
+      Contact *contact = &contacts[num_contacts];
+      if (ball_wall_are_colliding(ball, wall, contact)) {
+        // num_contacts++;
+
+        ball->isColliding = true;
+        wall->isColliding = true;
+      }
+    }
+  }
+
   for (int i = 0; i < num_contacts; i++) {
-    balls_pre_solve_contact(&contacts[i], dt);
+    contact_pre_solve(&contacts[i], dt);
   }
 
   for (int n = 0; n < CONTACT_SOLVE_ITERATIONS; n++) {
     for (int i = 0; i < num_contacts; i++) {
-      balls_solve_contact(&contacts[i], dt);
+      contact_solve(&contacts[i], dt);
     }
   }
 

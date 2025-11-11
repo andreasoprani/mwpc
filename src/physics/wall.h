@@ -4,10 +4,21 @@
 #include <raylib.h>
 
 typedef struct Wall {
-  Vector2 position;
-  Vector2 size;
+  Vector2 start;
+  Vector2 direction;
+
+  bool isColliding;
 } Wall;
 
-Wall *create_wall(Vector2 position, Vector2 size);
+Vector2 wall_get_outside_normal(const Wall *wall);
+
+typedef struct Table {
+  Wall *walls;
+  int num_walls;
+} Table;
+
+Table *table_create(const int num_walls,
+                    const Vector2 *vertices // clockwise order
+);
 
 #endif

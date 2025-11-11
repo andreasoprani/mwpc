@@ -2,10 +2,20 @@
 #define PHYSICS_COLLISION_H
 
 #include "ball.h"
+#include "wall.h"
 
-typedef struct BallsContact {
-  Ball *ball1;
-  Ball *ball2;
+typedef enum {
+  COLLISION_BALL_BALL,
+  COLLISION_BALL_WALL,
+} CollisionType;
+
+typedef struct Contact {
+  CollisionType type;
+  Ball *ball;
+  union {
+    Ball *ball;
+    Wall *wall;
+  } other;
 
   Vector2 start;
   Vector2 end;
@@ -16,10 +26,12 @@ typedef struct BallsContact {
   float cachedLambda[2];
   float bias;
   float friction;
-} BallsContact;
+} Contact;
 
-bool balls_are_colliding(Ball *ball1, Ball *ball2, BallsContact *contact);
-void balls_pre_solve_contact(BallsContact *contact, float dt);
-void balls_solve_contact(BallsContact *contact, float dt);
+bool balls_are_colliding(Ball *ball1, Ball *ball2, Contact *contact);
+bool ball_wall_are_colliding(Ball *ball, Wall *wall, Contact *contact);
+
+void contact_pre_solve(Contact *contact, float dt);
+void contact_solve(Contact *contact, float dt);
 
 #endif

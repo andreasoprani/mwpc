@@ -3,6 +3,7 @@
 #include "matmath.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "wall.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -12,7 +13,7 @@
 
 const float BETA = 0.2f;
 
-bool balls_are_colliding(Ball *ball1, Ball *ball2, BallsContact *contact) {
+bool balls_are_colliding(Ball *ball1, Ball *ball2, Contact *contact) {
   const Vector2 ab = Vector2Subtract(ball2->position, ball1->position);
   const float radiusSum = ball1->radius + ball2->radius;
   const bool isColliding = Vector2LengthSqr(ab) <= radiusSum * radiusSum;
@@ -20,8 +21,9 @@ bool balls_are_colliding(Ball *ball1, Ball *ball2, BallsContact *contact) {
   if (!isColliding)
     return false;
 
-  contact->ball1 = ball1;
-  contact->ball2 = ball2;
+  contact->type = COLLISION_BALL_BALL;
+  contact->ball = ball1;
+  contact->other.ball = ball2;
   contact->normal = Vector2Normalize(ab);
   contact->start = Vector2Subtract(
       ball2->position, Vector2Scale(contact->normal, ball2->radius));
@@ -36,11 +38,36 @@ bool balls_are_colliding(Ball *ball1, Ball *ball2, BallsContact *contact) {
   return true;
 }
 
-void balls_pre_solve_contact(BallsContact *contact, float dt) {
+bool ball_wall_are_colliding(Ball *ball, Wall *wall, Contact *contact) {
+  const Vector2 start_to_ball = Vector2Subtract(wall->start, ball->position);
+
+  const Vector2 wall_closest_point = Vector2Add(
+      wall->start,
+      Vector2Scale(wall->direction,
+                   Vector2DotProduct(start_to_ball, wall->direction)));
+
+  const Vector2 outside_normal = wall_get_outside_normal(wall);
+
+  const Vector2 closest_to_ball =
+      Vector2Subtract(ball->position, wall_closest_point);
+
+  const bool insideWall =
+      Vector2DotProduct(closest_to_ball, outside_normal) >= 0.f;
+  const bool collidingWall = !insideWall && Vector2LengthSqr(closest_to_ball) <=
+                                                ball->radius * ball->radius;
+
+  if (!insideWall && !collidingWall)
+    return false;
+
+  return true;
+}
+
+void contact_pre_solve(Contact *contact, float dt) {
   const Vector2 n = contact->normal;
 
-  const Vector2 r1 = Vector2Subtract(contact->start, contact->ball1->position);
-  const Vector2 r2 = Vector2Subtract(contact->end, contact->ball2->position);
+  const Vector2 r1 = Vector2Subtract(contact->start, contact->ball->position);
+  const Vector2 r2 =
+      Vector2Subtract(contact->end, contact->other.ball->position);
 
   contact->jacobian[0] = -n.x;
   contact->jacobian[1] = -n.y;
@@ -59,58 +86,42 @@ void balls_pre_solve_contact(BallsContact *contact, float dt) {
     contact->jacobian[11] = CROSS(r2, t);
   }
 
-  // float jT[6 * 2];
-  // mat_transpose(contact->jacobian, jT, 2, 6);
-
-  // float impulses[6];
-  // mat_mul_vec(jT, contact->cachedLambda, impulses, 6, 2);
-
-  // Vector2 il1 = {impulses[0], impulses[1]};
-  // float ia1 = impulses[2];
-  // Vector2 il2 = {impulses[3], impulses[4]};
-  // float ia2 = impulses[5];
-
-  // ball_apply_impulse_linear(contact->ball1, il1);
-  // ball_apply_impulse_angular(contact->ball1, ia1);
-  // ball_apply_impulse_linear(contact->ball2, il2);
-  // ball_apply_impulse_angular(contact->ball2, ia2);
-
   float C = Vector2DotProduct(Vector2Subtract(contact->end, contact->start),
                               Vector2Negate(n));
   C = MIN(0.f, C + 0.01f);
   if (dt == 0) {
     contact->bias = 0.f;
   } else {
-    float e = MIN(contact->ball1->restitution, contact->ball2->restitution);
-    Vector2 w1 = {-contact->ball1->angularVelocity * r1.y,
-                  contact->ball1->angularVelocity * r1.x};
-    Vector2 v1 = Vector2Add(contact->ball1->velocity, w1);
-    Vector2 w2 = {-contact->ball2->angularVelocity * r2.y,
-                  contact->ball2->angularVelocity * r2.x};
-    Vector2 v2 = Vector2Add(contact->ball2->velocity, w2);
+    float e = MIN(contact->ball->restitution, contact->other.ball->restitution);
+    Vector2 w1 = {-contact->ball->angularVelocity * r1.y,
+                  contact->ball->angularVelocity * r1.x};
+    Vector2 v1 = Vector2Add(contact->ball->velocity, w1);
+    Vector2 w2 = {-contact->other.ball->angularVelocity * r2.y,
+                  contact->other.ball->angularVelocity * r2.x};
+    Vector2 v2 = Vector2Add(contact->other.ball->velocity, w2);
     contact->bias =
         (BETA / dt) * C + e * Vector2DotProduct(Vector2Subtract(v1, v2), n);
   }
 }
 
-void balls_solve_contact(BallsContact *contact, float dt) {
+void contact_solve(Contact *contact, float dt) {
   float *j = contact->jacobian;
   float jT[6 * 2];
   mat_transpose(contact->jacobian, jT, 2, 6);
 
   float velocities[6] = {
-      contact->ball1->velocity.x,      contact->ball1->velocity.y,
-      contact->ball1->angularVelocity, contact->ball2->velocity.x,
-      contact->ball2->velocity.y,      contact->ball2->angularVelocity,
+      contact->ball->velocity.x,       contact->ball->velocity.y,
+      contact->ball->angularVelocity,  contact->other.ball->velocity.x,
+      contact->other.ball->velocity.y, contact->other.ball->angularVelocity,
   };
 
   float invM[6 * 6] = {
-      contact->ball1->inverseMass,    0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
-      contact->ball1->inverseMass,    0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
-      contact->ball1->inverseInertia, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
-      contact->ball2->inverseMass,    0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
-      contact->ball2->inverseMass,    0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
-      contact->ball2->inverseInertia,
+      contact->ball->inverseMass,          0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
+      contact->ball->inverseMass,          0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
+      contact->ball->inverseInertia,       0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
+      contact->other.ball->inverseMass,    0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
+      contact->other.ball->inverseMass,    0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
+      contact->other.ball->inverseInertia,
   };
 
   float tmp[2 * 6];
@@ -147,8 +158,8 @@ void balls_solve_contact(BallsContact *contact, float dt) {
   Vector2 il2 = {impulses[3], impulses[4]};
   float ia2 = impulses[5];
 
-  ball_apply_impulse_linear(contact->ball1, il1);
-  ball_apply_impulse_angular(contact->ball1, ia1);
-  ball_apply_impulse_linear(contact->ball2, il2);
-  ball_apply_impulse_angular(contact->ball2, ia2);
+  ball_apply_impulse_linear(contact->ball, il1);
+  ball_apply_impulse_angular(contact->ball, ia1);
+  ball_apply_impulse_linear(contact->other.ball, il2);
+  ball_apply_impulse_angular(contact->other.ball, ia2);
 }

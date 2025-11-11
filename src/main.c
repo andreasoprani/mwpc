@@ -1,7 +1,8 @@
 #include "physics/ball.h"
+#include "physics/wall.h"
 #include "raylib.h"
+#include "render.h"
 #include "world.h"
-#include <math.h>
 #include <stdio.h>
 
 const float G = 9.81f;
@@ -29,7 +30,22 @@ void add_ball(World *world, Vector2 position) {
   world_add_ball(world, ball);
 }
 
-void setupWorld() { world = world_create(); }
+void setupWorld() {
+
+  int wall_padding = 50;
+
+  Vector2 tl = {wall_padding, wall_padding};
+  Vector2 tr = {GetScreenWidth() - wall_padding, wall_padding};
+  Vector2 bl = {wall_padding, GetScreenHeight() - wall_padding};
+  Vector2 br = {GetScreenWidth() - wall_padding,
+                GetScreenHeight() - wall_padding};
+
+  Vector2 vertices[4] = {tl, tr, br, bl};
+
+  Table *table = table_create(4, vertices);
+
+  world = world_create(table);
+}
 
 void input() {
   if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -64,17 +80,6 @@ void update_world(const float dt) {
   };
 }
 
-void render() {
-  for (int i = 0; i < world->ballsLength; i++) {
-    Ball *ball = &world->balls[i];
-    Color color = (ball->isColliding) ? RED : WHITE;
-    DrawCircleLines(ball->position.x, ball->position.y, ball->radius, color);
-    DrawLine(ball->position.x, ball->position.y,
-             ball->position.x + ball->radius * cos(ball->rotation),
-             ball->position.y + ball->radius * sin(ball->rotation), color);
-  };
-}
-
 int main() {
 
   setupApp();
@@ -83,17 +88,10 @@ int main() {
   while (WindowShouldClose() == false) {
     const float dt = GetFrameTime();
 
-    // Move to rendering
-    BeginDrawing();
-    ClearBackground(BLACK);
-
     input();
 
     update_world(dt);
-    render();
-
-    // Move to rendering
-    EndDrawing();
+    render_world(world);
   }
 
   CloseWindow();
