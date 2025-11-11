@@ -4,7 +4,7 @@ CC = cc
 APPNAME = app
 
 build:
-	$(CC) -arch arm64 -o $(APPNAME) ./src/*.c ./src/*/*.c $(LIB) $(CFLAGS)
+	$(CC) -arch arm64 -o $(APPNAME) ./src/*.c ./src/*/*.c $(LIB) $(CFLAGS) -Wall -Werror
 
 run:
 	./$(APPNAME)

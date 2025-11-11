@@ -54,8 +54,6 @@ void input() {
 }
 
 void update_world(const float dt) {
-  const Vector2 mousePosition = GetMousePosition();
-
   world_update(world, dt);
 
   for (int i = 0; i < world->ballsLength; i++) {
