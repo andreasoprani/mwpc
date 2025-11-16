@@ -53,31 +53,6 @@ void input() {
   }
 }
 
-void update_world(const float dt) {
-  world_update(world, dt);
-
-  for (int i = 0; i < world->ballsLength; i++) {
-    Ball *ball = &world->balls[i];
-    // awful window boundaries
-    if (ball->position.x < 0) {
-      ball->position.x = 0;
-      ball->velocity.x = -.9 * ball->velocity.x;
-    };
-    if (ball->position.y < 0) {
-      ball->position.y = 0;
-      ball->velocity.y = -.9 * ball->velocity.y;
-    };
-    if (ball->position.x > GetScreenWidth()) {
-      ball->position.x = GetScreenWidth();
-      ball->velocity.x = -.9 * ball->velocity.x;
-    };
-    if (ball->position.y > GetScreenHeight()) {
-      ball->position.y = GetScreenHeight();
-      ball->velocity.y = -.9 * ball->velocity.y;
-    };
-  };
-}
-
 int main() {
 
   setupApp();
@@ -88,7 +63,7 @@ int main() {
 
     input();
 
-    update_world(dt);
+    world_update(world, dt);
     render_world(world);
   }
 

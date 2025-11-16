@@ -1,12 +1,12 @@
 #include "world.h"
 #include "physics/ball.h"
-#include "physics/collision.h"
+#include "physics/contact.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-const float GRAVITATIONAL_CONSTANT = 20;
+const float GRAVITATIONAL_CONSTANT = 2000;
 const float CONTACT_SOLVE_ITERATIONS = 10;
 
 World *world_create(Table *table) {
@@ -80,7 +80,7 @@ void world_update(World *world, float dt) {
 
       Contact *contact = &contacts[num_contacts];
       if (ball_wall_are_colliding(ball, wall, contact)) {
-        // num_contacts++;
+        num_contacts++;
 
         ball->isColliding = true;
         wall->isColliding = true;

@@ -1,5 +1,11 @@
 #include "render.h"
 
+Color DEBUG_BALL_COLOR = WHITE;
+Color NORMAL_BALL_COLOR = WHITE;
+
+Color DEBUG_WALL_COLOR = WHITE;
+Color NORMAL_WALL_COLOR = WHITE;
+
 void render_world(World *world) {
   BeginDrawing();
   ClearBackground(BLACK);
@@ -16,7 +22,7 @@ void render_table(Table *table) {
   for (int i = 0; i < table->num_walls; i++) {
     Wall *wall = &table->walls[i];
     Wall *next_wall = &table->walls[(i + 1) % table->num_walls];
-    Color color = (wall->isColliding) ? RED : WHITE;
+    Color color = (wall->isColliding) ? DEBUG_WALL_COLOR : NORMAL_WALL_COLOR;
     DrawLine(wall->start.x, wall->start.y, next_wall->start.x,
              next_wall->start.y, color);
 
@@ -28,7 +34,7 @@ void render_table(Table *table) {
 }
 
 void render_ball(Ball *ball) {
-  Color color = (ball->isColliding) ? RED : WHITE;
+  Color color = (ball->isColliding) ? DEBUG_BALL_COLOR : NORMAL_BALL_COLOR;
   DrawCircleLines(ball->position.x, ball->position.y, ball->radius, color);
   DrawLine(ball->position.x, ball->position.y,
            ball->position.x + ball->radius * cos(ball->rotation),

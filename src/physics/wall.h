@@ -7,6 +7,9 @@ typedef struct Wall {
   Vector2 start;
   Vector2 direction;
 
+  float restitution;
+  float friction;
+
   bool isColliding;
 } Wall;
 

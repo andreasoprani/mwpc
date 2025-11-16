@@ -1,6 +1,7 @@
 #ifndef PHYSICS_MATMATH_H
 #define PHYSICS_MATMATH_H
 
+void vec_zero(float *v, const unsigned int n);
 float vec_dot(const float *a, const float *b, const unsigned int n);
 void vec_add(const float *a, const float *b, float *result,
              const unsigned int n);
@@ -16,6 +17,8 @@ unsigned int mat_idx(const unsigned int n, const unsigned int i,
                      const unsigned int j);
 
 float *mat_row(const float *mat, const unsigned int n, const unsigned int i);
+
+void mat_zero(float *mat, const unsigned int m, const unsigned int n);
 
 // Transposes a matrix of size m x n to a matrix of size n x m.
 void mat_transpose(const float *mat, float *result, const unsigned int m,

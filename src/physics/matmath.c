@@ -1,6 +1,12 @@
 #include "matmath.h"
 #include <stdlib.h>
 
+void vec_zero(float *v, const unsigned int n) {
+  for (unsigned int i = 0; i < n; i++) {
+    v[i] = 0.0f;
+  }
+}
+
 float vec_dot(const float *a, const float *b, const unsigned int n) {
   float sum = 0.0f;
   for (unsigned int i = 0; i < n; i++) {
@@ -43,6 +49,10 @@ unsigned int mat_idx(const unsigned int n, const unsigned int i,
 
 float *mat_row(const float *mat, const unsigned int n, const unsigned int i) {
   return (float *)mat + i * n;
+}
+
+void mat_zero(float *mat, const unsigned int m, const unsigned int n) {
+  vec_zero(mat, m * n);
 }
 
 void mat_transpose(const float *mat, float *result, const unsigned int m,
