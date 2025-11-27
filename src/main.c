@@ -5,9 +5,6 @@
 #include "world.h"
 #include <stdio.h>
 
-const float G = 9.81f;
-const float MOUSE_MASS = 100000;
-
 const float SCREEN_WIDTH = 900;
 const float SCREEN_HEIGHT = 900;
 
@@ -59,11 +56,12 @@ int main() {
   setupWorld();
 
   while (WindowShouldClose() == false) {
-    const float dt = GetFrameTime();
+    float dt = GetFrameTime();
 
     input();
 
     world_update(world, dt);
+
     render_world(world);
   }
 

@@ -1,5 +1,6 @@
 #include "contact.h"
 #include "ball.h"
+#include "constants.h"
 #include "matmath.h"
 #include "raylib.h"
 #include "raymath.h"
@@ -10,8 +11,6 @@
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
-
-const float BETA = 0.2f;
 
 bool balls_are_colliding(Ball *ball1, Ball *ball2, Contact *contact) {
   const Vector2 ab = Vector2Subtract(ball2->position, ball1->position);
@@ -137,7 +136,7 @@ void contact_pre_solve(Contact *contact, float dt) {
       vOther = Vector2Zero();
     }
 
-    contact->bias = (BETA / dt) * C +
+    contact->bias = (CONTACT_BETA / dt) * C +
                     e * Vector2DotProduct(Vector2Subtract(vBall, vOther), n);
   }
 }

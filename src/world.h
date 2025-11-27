@@ -2,6 +2,7 @@
 #define WORLD_H
 
 #include "physics/ball.h"
+#include "physics/contact.h"
 #include "physics/wall.h"
 
 typedef struct World {
@@ -10,6 +11,10 @@ typedef struct World {
   int ballsLength;
 
   Table *table;
+
+  Contact *contacts;
+  int contactsCapacity;
+  int contactsLength;
 } World;
 
 World *world_create(Table *table);

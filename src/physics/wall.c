@@ -1,9 +1,7 @@
 #include "wall.h"
+#include "constants.h"
 #include <raymath.h>
 #include <stdlib.h>
-
-const float DEFAULT_WALL_RESTITUTION = 0.9f;
-const float DEFAULT_WALL_FRICTION = 0.7f;
 
 Table *table_create(const int num_walls, const Vector2 *vertices) {
   Table *table = malloc(sizeof(Table));

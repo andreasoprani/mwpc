@@ -1,19 +1,24 @@
 #include "world.h"
 #include "physics/ball.h"
+#include "physics/constants.h"
 #include "physics/contact.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-const float GRAVITATIONAL_CONSTANT = 2000;
-const float CONTACT_SOLVE_ITERATIONS = 10;
-
 World *world_create(Table *table) {
   World *world = (World *)malloc(sizeof(World));
-  world->balls = (Ball *)malloc(100 * sizeof(Ball));
-  world->ballsCapacity = 10;
+  int ballsCapacity = 10;
+  world->balls = (Ball *)malloc(ballsCapacity * sizeof(Ball));
+  world->ballsCapacity = ballsCapacity;
   world->ballsLength = 0;
+
+  int contactsCapacity =
+      ballsCapacity * (ballsCapacity - 1) + ballsCapacity * table->num_walls;
+  world->contacts = (Contact *)malloc(contactsCapacity * sizeof(Contact));
+  world->contactsCapacity = contactsCapacity;
+  world->contactsLength = 0;
 
   world->table = table;
   return world;
@@ -25,6 +30,8 @@ void world_destroy(World *world) {
 }
 
 void world_update(World *world, float dt) {
+  world->contactsLength = 0;
+
   // Add all gravitational forces
   for (int i = 0; i < world->ballsLength - 1; i++) {
     Ball *ball_i = &world->balls[i];
@@ -48,10 +55,6 @@ void world_update(World *world, float dt) {
   for (int i = 0; i < world->ballsLength; i++)
     ball_integrate_forces(&world->balls[i], dt);
 
-  Contact contacts[world->ballsLength * (world->ballsLength - 1) +
-                   (world->ballsLength * world->table->num_walls)];
-  int num_contacts = 0;
-
   for (int i = 0; i < world->ballsLength; i++)
     (&world->balls[i])->isColliding = false;
 
@@ -63,9 +66,9 @@ void world_update(World *world, float dt) {
     for (int j = i + 1; j < world->ballsLength; j++) {
       Ball *ball_j = &world->balls[j];
 
-      Contact *contact = &contacts[num_contacts];
+      Contact *contact = &world->contacts[world->contactsLength];
       if (balls_are_colliding(ball_i, ball_j, contact)) {
-        num_contacts++;
+        world->contactsLength++;
 
         ball_i->isColliding = true;
         ball_j->isColliding = true;
@@ -78,9 +81,9 @@ void world_update(World *world, float dt) {
     for (int j = 0; j < world->table->num_walls; j++) {
       Wall *wall = &world->table->walls[j];
 
-      Contact *contact = &contacts[num_contacts];
+      Contact *contact = &world->contacts[world->contactsLength];
       if (ball_wall_are_colliding(ball, wall, contact)) {
-        num_contacts++;
+        world->contactsLength++;
 
         ball->isColliding = true;
         wall->isColliding = true;
@@ -88,13 +91,13 @@ void world_update(World *world, float dt) {
     }
   }
 
-  for (int i = 0; i < num_contacts; i++) {
-    contact_pre_solve(&contacts[i], dt);
+  for (int i = 0; i < world->contactsLength; i++) {
+    contact_pre_solve(&world->contacts[i], dt);
   }
 
   for (int n = 0; n < CONTACT_SOLVE_ITERATIONS; n++) {
-    for (int i = 0; i < num_contacts; i++) {
-      contact_solve(&contacts[i], dt);
+    for (int i = 0; i < world->contactsLength; i++) {
+      contact_solve(&world->contacts[i], dt);
     }
   }
 
@@ -107,6 +110,12 @@ void world_add_ball(World *world, Ball *ball) {
     world->ballsCapacity *= 2;
     world->balls =
         (Ball *)realloc(world->balls, world->ballsCapacity * sizeof(Ball));
+
+    world->contactsCapacity =
+        world->ballsCapacity * (world->ballsCapacity - 1) +
+        world->ballsCapacity * world->table->num_walls;
+    world->contacts = (Contact *)realloc(
+        world->contacts, world->contactsCapacity * sizeof(Contact));
   }
   world->balls[world->ballsLength++] = *ball;
 }

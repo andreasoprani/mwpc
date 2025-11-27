@@ -1,9 +1,7 @@
 #include "ball.h"
+#include "constants.h"
 #include "raymath.h"
 #include <stdlib.h>
-
-const float DEFAULT_BALL_RESTITUTION = 0.9f;
-const float DEFAULT_BALL_FRICTION = 0.7f;
 
 #define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
 
