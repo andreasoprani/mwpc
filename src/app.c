@@ -18,6 +18,7 @@ void toggleDebug(App *app) {
 
 Ball *addBall(World *world, Vector2 position) {
   Ball *ball = ball_create(position, 20.f, 100.f);
+  ball->velocity.x = 1000.0f;
   world_add_ball(world, ball);
   return ball;
 }
@@ -37,16 +38,9 @@ World *worldSetup(App *app) {
 
   World *world = world_create(table);
 
-  Ball *ball_1 =
-      addBall(world, (Vector2){GetScreenWidth() / 2, GetScreenHeight() / 4});
-  Ball *ball_2 =
-      addBall(world, (Vector2){GetScreenWidth() / 2, GetScreenHeight() / 2});
-  Ball *ball_3 = addBall(
-      world, (Vector2){GetScreenWidth() / 2, 3 * GetScreenHeight() / 4});
-
-  ball_1->velocity = (Vector2){100.0f, 0.0f};
-  ball_2->velocity = (Vector2){100.0f, 0.0f};
-  ball_3->velocity = (Vector2){100.0f, 0.0f};
+  addBall(world, (Vector2){GetScreenWidth() / 2, GetScreenHeight() / 4});
+  addBall(world, (Vector2){GetScreenWidth() / 2, GetScreenHeight() / 2});
+  addBall(world, (Vector2){GetScreenWidth() / 2, 3 * GetScreenHeight() / 4});
 
   return world;
 }
