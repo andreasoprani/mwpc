@@ -8,17 +8,19 @@
 #include <stdlib.h>
 
 World *world_create(Table *table) {
-  World *world = (World *)malloc(sizeof(World));
+  World *world = malloc(sizeof(World));
   int ballsCapacity = 10;
-  world->balls = (Ball *)malloc(ballsCapacity * sizeof(Ball));
+  world->balls = malloc(ballsCapacity * sizeof(Ball));
   world->ballsCapacity = ballsCapacity;
   world->ballsLength = 0;
 
   int contactsCapacity =
       ballsCapacity * (ballsCapacity - 1) + ballsCapacity * table->num_walls;
-  world->contacts = (Contact *)malloc(contactsCapacity * sizeof(Contact));
+  world->contacts = malloc(contactsCapacity * sizeof(Contact));
   world->contactsCapacity = contactsCapacity;
   world->contactsLength = 0;
+
+  world->gravityEnabled = false;
 
   world->table = table;
   return world;
@@ -33,22 +35,25 @@ void world_update(World *world, float dt) {
   world->contactsLength = 0;
 
   // Add all gravitational forces
-  for (int i = 0; i < world->ballsLength - 1; i++) {
-    Ball *ball_i = &world->balls[i];
-    for (int j = i + 1; j < world->ballsLength; j++) {
-      Ball *ball_j = &world->balls[j];
-      const Vector2 distance =
-          Vector2Subtract(ball_j->position, ball_i->position);
-      const float distance_squared = Vector2LengthSqr(distance);
+  if (world->gravityEnabled) {
+    for (int i = 0; i < world->ballsLength - 1; i++) {
+      Ball *ball_i = &world->balls[i];
+      for (int j = i + 1; j < world->ballsLength; j++) {
+        Ball *ball_j = &world->balls[j];
+        const Vector2 distance =
+            Vector2Subtract(ball_j->position, ball_i->position);
+        const float distance_squared = Vector2LengthSqr(distance);
 
-      // Calculate the force between the two balls
-      float forceMagnitude = GRAVITATIONAL_CONSTANT * world->balls[i].mass *
-                             world->balls[j].mass / distance_squared;
+        // Calculate the force between the two balls
+        float forceMagnitude = GRAVITATIONAL_CONSTANT * world->balls[i].mass *
+                               world->balls[j].mass / distance_squared;
 
-      Vector2 force = Vector2Scale(Vector2Normalize(distance), forceMagnitude);
+        Vector2 force =
+            Vector2Scale(Vector2Normalize(distance), forceMagnitude);
 
-      ball_add_force(ball_i, force);
-      ball_add_force(ball_j, Vector2Scale(force, -1));
+        ball_add_force(ball_i, force);
+        ball_add_force(ball_j, Vector2Scale(force, -1));
+      }
     }
   }
 
@@ -118,4 +123,9 @@ void world_add_ball(World *world, Ball *ball) {
         world->contacts, world->contactsCapacity * sizeof(Contact));
   }
   world->balls[world->ballsLength++] = *ball;
+}
+
+void worldToggleGravity(World *world) {
+  world->gravityEnabled = !world->gravityEnabled;
+  printf("Gravity: %s\n", world->gravityEnabled ? "ON" : "OFF");
 }

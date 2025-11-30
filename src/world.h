@@ -7,14 +7,16 @@
 
 typedef struct World {
   Ball *balls;
-  int ballsCapacity;
-  int ballsLength;
+  unsigned int ballsCapacity;
+  unsigned int ballsLength;
 
   Table *table;
 
   Contact *contacts;
-  int contactsCapacity;
-  int contactsLength;
+  unsigned int contactsCapacity;
+  unsigned int contactsLength;
+
+  bool gravityEnabled;
 } World;
 
 World *world_create(Table *table);
@@ -22,5 +24,7 @@ void world_destroy(World *world);
 void world_update(World *world, float dt);
 
 void world_add_ball(World *world, Ball *ball);
+
+void worldToggleGravity(World *world);
 
 #endif
