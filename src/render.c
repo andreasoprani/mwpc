@@ -1,5 +1,6 @@
 #include "render.h"
 #include "raylib.h"
+#include <stdio.h>
 
 Color DEBUG_BALL_COLOR = RED;
 Color NORMAL_BALL_COLOR = WHITE;
@@ -60,6 +61,14 @@ void renderWorld(World *world, bool debug) {
 
   if (debug) {
     DrawText("Debug Mode ON", 5, GetScreenHeight() - 25, 20, RED);
+
+    for (int i = 0; i < world->ballsLength; i++) {
+      char speedText[128];
+      sprintf(speedText, "Ball %d, position: (%f, %f), speed: (%f, %f)", i,
+              world->balls[i].position.x, world->balls[i].position.y,
+              world->balls[i].velocity.x, world->balls[i].velocity.y);
+      DrawText(speedText, 5, 5 + 20 * i, 20, RED);
+    }
   }
 
   EndDrawing();

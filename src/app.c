@@ -38,9 +38,7 @@ World *worldSetup(App *app) {
 
   World *world = world_create(table);
 
-  addBall(world, (Vector2){GetScreenWidth() / 2, GetScreenHeight() / 4});
   addBall(world, (Vector2){GetScreenWidth() / 2, GetScreenHeight() / 2});
-  addBall(world, (Vector2){GetScreenWidth() / 2, 3 * GetScreenHeight() / 4});
 
   return world;
 }
