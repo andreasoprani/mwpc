@@ -51,7 +51,7 @@ App *appSetup() {
   app->debugRun = true;
 
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Milky Way Pool Club");
-  // SetTargetFPS(120);
+  SetTargetFPS(120);
   app->world = worldSetup(app);
   return app;
 }
