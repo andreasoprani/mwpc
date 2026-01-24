@@ -4,20 +4,20 @@
 #include <raylib.h>
 
 typedef struct Wall {
-  Vector2 start;
-  Vector2 direction;
+    Vector2 start;
+    Vector2 direction;
 
-  float restitution;
-  float friction;
+    float restitution;
+    float friction;
 
-  bool isColliding;
+    bool is_colliding;
 } Wall;
 
 Vector2 wall_get_outside_normal(const Wall *wall);
 
 typedef struct Table {
-  Wall *walls;
-  int num_walls;
+    Wall *walls;
+    int num_walls;
 } Table;
 
 Table *table_create(const int num_walls,

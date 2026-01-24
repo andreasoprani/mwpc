@@ -1,0 +1,19 @@
+---
+Language: Cpp
+# Start with LLVM style as a base (clean and standard)
+BasedOnStyle: LLVM
+
+# Enforce 4-space indentation (standard for apps, distinct from Kernel 8-space)
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# The K&R Brace Style:
+# - Function braces on a new line
+# - If/For/While braces on the same line
+BreakBeforeBraces: Linux
+
+# Visual Spacing preferences common in C
+AllowShortFunctionsOnASingleLine: None
+KeepEmptyLinesAtTheStartOfBlocks: false
+SpaceAfterCStyleCast: true

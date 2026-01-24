@@ -2,14 +2,15 @@
 #include "raylib.h"
 #include <stdlib.h>
 
-int main() {
-  App *app = appSetup();
+int main()
+{
+    App *app = app_setup();
 
-  while (WindowShouldClose() == false) {
-    appFrame(app);
-  }
+    while (WindowShouldClose() == false) {
+        app_frame(app);
+    }
 
-  CloseWindow();
+    CloseWindow();
 
-  return 0;
+    return 0;
 }

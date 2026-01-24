@@ -5,15 +5,15 @@
 #include "world.h"
 
 typedef struct App {
-  World *world;
-  Input *input;
+    World *world;
+    Input *input;
 
-  bool debug;
-  bool debugRun;
+    bool debug;
+    bool debugRun;
 
 } App;
 
-App *appSetup();
-void appFrame(App *app);
+App *app_setup();
+void app_frame(App *app);
 
 #endif

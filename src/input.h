@@ -4,17 +4,17 @@
 #include "raylib.h"
 
 typedef struct Input {
-  Vector2 mousePosition;
+    Vector2 mousePosition;
 
-  bool mouseLeftPressed;
+    bool mouseLeftPressed;
 
-  bool keyDPressed;
-  bool keyGPressed;
-  bool keySpacePressed;
+    bool keyDPressed;
+    bool keyGPressed;
+    bool keySpacePressed;
 } Input;
 
-Input *inputCreate();
-void inputReset(Input *input);
-void inputUpdate(Input *input);
+Input *input_create();
+void input_reset(Input *input);
+void input_update(Input *input);
 
 #endif

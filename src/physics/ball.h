@@ -6,31 +6,30 @@
 #include <stdbool.h>
 
 typedef struct Ball {
+    float radius;
 
-  float radius;
+    Vector2 position;
+    Vector2 velocity;
+    Vector2 acceleration;
 
-  Vector2 position;
-  Vector2 velocity;
-  Vector2 acceleration;
+    float rotation;
+    float angularVelocity;
+    float angularAcceleration;
 
-  float rotation;
-  float angularVelocity;
-  float angularAcceleration;
+    Vector2 sumForces;
+    float sumTorques;
 
-  Vector2 sumForces;
-  float sumTorques;
+    float mass;
+    float inverseMass;
 
-  float mass;
-  float inverseMass;
+    float inertia;
+    float inverseInertia;
 
-  float inertia;
-  float inverseInertia;
+    float restitution;
+    float friction;
 
-  float restitution;
-  float friction;
-
-  // Debug
-  bool isColliding;
+    // Debug
+    bool is_colliding;
 } Ball;
 
 Ball *ball_create(const Vector2 position, const float radius, const float mass);

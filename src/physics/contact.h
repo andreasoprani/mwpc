@@ -5,26 +5,26 @@
 #include "wall.h"
 
 typedef enum {
-  CONTACT_BALL_BALL,
-  CONTACT_BALL_WALL,
+    CONTACT_BALL_BALL,
+    CONTACT_BALL_WALL,
 } ContactType;
 
 typedef struct Contact {
-  ContactType type;
-  Ball *ball;
-  union {
+    ContactType type;
     Ball *ball;
-    Wall *wall;
-  } other;
+    union {
+        Ball *ball;
+        Wall *wall;
+    } other;
 
-  Vector2 start;
-  Vector2 end;
-  Vector2 normal;
-  float depth;
+    Vector2 start;
+    Vector2 end;
+    Vector2 normal;
+    float depth;
 
-  float jacobian[2 * 6]; // 2x6 matrix
-  float cachedLambda[2];
-  float bias;
+    float jacobian[2 * 6]; // 2x6 matrix
+    float cachedLambda[2];
+    float bias;
 } Contact;
 
 bool balls_are_colliding(Ball *ball1, Ball *ball2, Contact *contact);

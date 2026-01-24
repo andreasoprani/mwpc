@@ -9,79 +9,84 @@
 const float SCREEN_WIDTH = 900;
 const float SCREEN_HEIGHT = 900;
 
-void toggleDebug(App *app) {
-  const bool currDebug = app->debug;
-  app->debug = !currDebug;
-  app->debugRun = currDebug;
-  printf("Debug mode: %s\n", app->debug ? "ON" : "OFF");
+void toggle_debug(App *app)
+{
+    const bool curr_debug = app->debug;
+    app->debug = !curr_debug;
+    app->debugRun = curr_debug;
+    printf("Debug mode: %s\n", app->debug ? "ON" : "OFF");
 }
 
-Ball *addBall(World *world, Vector2 position) {
-  Ball *ball = ball_create(position, 20.f, 100.f);
-  ball->velocity.x = 1000.0f;
-  world_add_ball(world, ball);
-  return ball;
+Ball *add_ball(World *world, Vector2 position)
+{
+    Ball *ball = ball_create(position, 20.f, 100.f);
+    ball->velocity.x = 1000.0f;
+    world_add_ball(world, ball);
+    return ball;
 }
 
-World *worldSetup(App *app) {
-  int wall_padding = 50;
+World *world_setup(App *app)
+{
+    int wall_padding = 50;
 
-  Vector2 tl = {wall_padding, wall_padding};
-  Vector2 tr = {GetScreenWidth() - wall_padding, wall_padding};
-  Vector2 bl = {wall_padding, GetScreenHeight() - wall_padding};
-  Vector2 br = {GetScreenWidth() - wall_padding,
-                GetScreenHeight() - wall_padding};
+    Vector2 tl = {wall_padding, wall_padding};
+    Vector2 tr = {GetScreenWidth() - wall_padding, wall_padding};
+    Vector2 bl = {wall_padding, GetScreenHeight() - wall_padding};
+    Vector2 br = {GetScreenWidth() - wall_padding,
+                  GetScreenHeight() - wall_padding};
 
-  Vector2 vertices[4] = {tl, tr, br, bl};
+    Vector2 vertices[4] = {tl, tr, br, bl};
 
-  Table *table = table_create(4, vertices);
+    Table *table = table_create(4, vertices);
 
-  World *world = world_create(table);
+    World *world = world_create(table);
 
-  addBall(world, (Vector2){GetScreenWidth() / 2, GetScreenHeight() / 2});
+    add_ball(world, (Vector2) {GetScreenWidth() / 2, GetScreenHeight() / 2});
 
-  return world;
+    return world;
 }
 
-App *appSetup() {
-  App *app = malloc(sizeof(App));
-  app->input = inputCreate();
+App *app_setup()
+{
+    App *app = malloc(sizeof(App));
+    app->input = input_create();
 
-  app->debug = false;
-  app->debugRun = true;
-
-  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Milky Way Pool Club");
-  SetTargetFPS(120);
-  app->world = worldSetup(app);
-  return app;
-}
-
-void applyAppInputs(App *app) {
-
-  if (app->input->keyGPressed)
-    worldToggleGravity(app->world);
-
-  if (app->input->keyDPressed)
-    toggleDebug(app);
-
-  if (app->debug && app->input->keySpacePressed) {
+    app->debug = false;
     app->debugRun = true;
-  }
 
-  if (app->input->mouseLeftPressed) {
-    addBall(app->world, app->input->mousePosition);
-  }
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Milky Way Pool Club");
+    SetTargetFPS(120);
+    app->world = world_setup(app);
+    return app;
 }
 
-void appFrame(App *app) {
-  float dt = GetFrameTime();
+void apply_app_inputs(App *app)
+{
+    if (app->input->keyGPressed)
+        world_toggle_gravity(app->world);
 
-  inputUpdate(app->input);
-  applyAppInputs(app);
+    if (app->input->keyDPressed)
+        toggle_debug(app);
 
-  if (!app->debug || app->debugRun) {
-    world_update(app->world, dt);
-    app->debugRun = !app->debug;
-  }
-  renderWorld(app->world, app->debug);
+    if (app->debug && app->input->keySpacePressed) {
+        app->debugRun = true;
+    }
+
+    if (app->input->mouseLeftPressed) {
+        add_ball(app->world, app->input->mousePosition);
+    }
+}
+
+void app_frame(App *app)
+{
+    float dt = GetFrameTime();
+
+    input_update(app->input);
+    apply_app_inputs(app);
+
+    if (!app->debug || app->debugRun) {
+        world_update(app->world, dt);
+        app->debugRun = !app->debug;
+    }
+    render_world(app->world, app->debug);
 }

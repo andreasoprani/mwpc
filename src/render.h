@@ -2,4 +2,4 @@
 #include "physics/wall.h"
 #include "world.h"
 
-void renderWorld(World *world, bool debug);
+void render_world(World *world, bool debug);
