@@ -7,14 +7,14 @@
 typedef enum {
     CONTACT_BALL_BALL,
     CONTACT_BALL_WALL,
-} ContactType;
+} contact_type_t;
 
-typedef struct Contact {
-    ContactType type;
-    Ball *ball;
+typedef struct contact {
+    contact_type_t type;
+    ball_t *ball;
     union {
-        Ball *ball;
-        Wall *wall;
+        ball_t *ball;
+        wall_t *wall;
     } other;
 
     Vector2 start;
@@ -23,20 +23,20 @@ typedef struct Contact {
     float depth;
 
     float jacobian[2 * 6]; // 2x6 matrix
-    float cachedLambda[2];
+    float cached_lambda[2];
     float bias;
-} Contact;
+} contact_t;
 
-bool balls_are_colliding(Ball *ball1, Ball *ball2, Contact *contact);
-bool ball_wall_are_colliding(Ball *ball, Wall *wall, Contact *contact);
+bool balls_are_colliding(ball_t *ball1, ball_t *ball2, contact_t *contact);
+bool ball_wall_are_colliding(ball_t *ball, wall_t *wall, contact_t *contact);
 
-void init_contact_resolution_info(Contact *contact);
-void contact_pre_solve(Contact *contact, float dt);
-void contact_solve(Contact *contact, float dt);
+void init_contact_resolution_info(contact_t *contact);
+void contact_pre_solve(contact_t *contact, float dt);
+void contact_solve(contact_t *contact, float dt);
 
-float get_contact_friction(Contact *contact);
-float get_contact_restitution(Contact *contact);
-void get_contact_velocities_vector(Contact *contact, float *velocities);
-void get_contact_invm_matrix(Contact *contact, float *invM);
+float get_contact_friction(contact_t *contact);
+float get_contact_restitution(contact_t *contact);
+void get_contact_velocities_vector(contact_t *contact, float *velocities);
+void get_contact_invm_matrix(contact_t *contact, float *invM);
 
 #endif

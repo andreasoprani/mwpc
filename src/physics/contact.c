@@ -12,7 +12,7 @@
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
 
-bool balls_are_colliding(Ball *ball1, Ball *ball2, Contact *contact)
+bool balls_are_colliding(ball_t *ball1, ball_t *ball2, contact_t *contact)
 {
     const Vector2 ab = Vector2Subtract(ball2->position, ball1->position);
     const float radius_sum = ball1->radius + ball2->radius;
@@ -37,7 +37,7 @@ bool balls_are_colliding(Ball *ball1, Ball *ball2, Contact *contact)
     return true;
 }
 
-bool ball_wall_are_colliding(Ball *ball, Wall *wall, Contact *contact)
+bool ball_wall_are_colliding(ball_t *ball, wall_t *wall, contact_t *contact)
 {
     const Vector2 start_to_ball = Vector2Subtract(ball->position, wall->start);
 
@@ -84,15 +84,15 @@ bool ball_wall_are_colliding(Ball *ball, Wall *wall, Contact *contact)
     return true;
 }
 
-void init_contact_resolution_info(Contact *contact)
+void init_contact_resolution_info(contact_t *contact)
 {
     memset(&contact->jacobian, 0, sizeof contact->jacobian);
-    memset(&contact->cachedLambda, 0, sizeof contact->cachedLambda);
+    memset(&contact->cached_lambda, 0, sizeof contact->cached_lambda);
 }
 
-void contact_pre_solve(Contact *contact, float dt)
+void contact_pre_solve(contact_t *contact, float dt)
 {
-    const ContactType type = contact->type;
+    const contact_type_t type = contact->type;
     const Vector2 n = contact->normal;
 
     const Vector2 r_ball =
@@ -131,15 +131,15 @@ void contact_pre_solve(Contact *contact, float dt)
         contact->bias = 0.f;
     } else {
         float e = get_contact_restitution(contact);
-        Vector2 w_ball = {-contact->ball->angularVelocity * r_ball.y,
-                          contact->ball->angularVelocity * r_ball.x};
+        Vector2 w_ball = {-contact->ball->angular_velocity * r_ball.y,
+                          contact->ball->angular_velocity * r_ball.x};
         Vector2 v_ball = Vector2Add(contact->ball->velocity, w_ball);
 
         Vector2 v_other;
         if (type == CONTACT_BALL_BALL) {
             const Vector2 w_other = {
-                -contact->other.ball->angularVelocity * r_other.y,
-                contact->other.ball->angularVelocity * r_other.x};
+                -contact->other.ball->angular_velocity * r_other.y,
+                contact->other.ball->angular_velocity * r_other.x};
             v_other = Vector2Add(contact->other.ball->velocity, w_other);
         } else {
             v_other = Vector2Zero();
@@ -151,7 +151,7 @@ void contact_pre_solve(Contact *contact, float dt)
     }
 }
 
-void contact_solve(Contact *contact, float dt)
+void contact_solve(contact_t *contact, float dt)
 {
     float *j = contact->jacobian;
 
@@ -177,19 +177,21 @@ void contact_solve(Contact *contact, float dt)
     solve_gauss_seidel(lhs, rhs, lambda, 2);
 
     float old_lambda[2];
-    vec_copy(contact->cachedLambda, old_lambda, 2);
+    vec_copy(contact->cached_lambda, old_lambda, 2);
 
-    vec_add(contact->cachedLambda, lambda, contact->cachedLambda, 2);
-    contact->cachedLambda[0] = MAX(contact->cachedLambda[0], 0.f);
+    vec_add(contact->cached_lambda, lambda, contact->cached_lambda, 2);
+    contact->cached_lambda[0] = MAX(contact->cached_lambda[0], 0.f);
 
     const float friction = get_contact_friction(contact);
     if (friction > 0.f) {
-        const float max_friction = contact->cachedLambda[0] * friction;
-        contact->cachedLambda[1] = MIN(contact->cachedLambda[1], max_friction);
-        contact->cachedLambda[1] = MAX(contact->cachedLambda[1], -max_friction);
+        const float max_friction = contact->cached_lambda[0] * friction;
+        contact->cached_lambda[1] =
+            MIN(contact->cached_lambda[1], max_friction);
+        contact->cached_lambda[1] =
+            MAX(contact->cached_lambda[1], -max_friction);
     }
 
-    vec_sub(contact->cachedLambda, old_lambda, lambda, 2);
+    vec_sub(contact->cached_lambda, old_lambda, lambda, 2);
 
     float impulses[6];
     mat_mul_vec(jT, lambda, impulses, 6, 2);
@@ -208,7 +210,7 @@ void contact_solve(Contact *contact, float dt)
     }
 }
 
-float get_contact_friction(Contact *contact)
+float get_contact_friction(contact_t *contact)
 {
     float second_friction;
     if (contact->type == CONTACT_BALL_BALL)
@@ -218,7 +220,7 @@ float get_contact_friction(Contact *contact)
     return MAX(contact->ball->friction, second_friction);
 }
 
-float get_contact_restitution(Contact *contact)
+float get_contact_restitution(contact_t *contact)
 {
     float second_restitution;
     if (contact->type == CONTACT_BALL_BALL)
@@ -228,32 +230,32 @@ float get_contact_restitution(Contact *contact)
     return MIN(contact->ball->restitution, second_restitution);
 }
 
-void get_contact_velocities_vector(Contact *contact, float *velocities)
+void get_contact_velocities_vector(contact_t *contact, float *velocities)
 {
     vec_zero(velocities, 6);
 
     velocities[0] = contact->ball->velocity.x;
     velocities[1] = contact->ball->velocity.y;
-    velocities[2] = contact->ball->angularVelocity;
+    velocities[2] = contact->ball->angular_velocity;
 
     if (contact->type == CONTACT_BALL_BALL) {
         velocities[3] = contact->other.ball->velocity.x;
         velocities[4] = contact->other.ball->velocity.y;
-        velocities[5] = contact->other.ball->angularVelocity;
+        velocities[5] = contact->other.ball->angular_velocity;
     }
 }
 
-void get_contact_invm_matrix(Contact *contact, float *invM)
+void get_contact_invm_matrix(contact_t *contact, float *invM)
 {
     mat_zero(invM, 6, 6);
 
-    invM[mat_idx(6, 0, 0)] = contact->ball->inverseMass;
-    invM[mat_idx(6, 1, 1)] = contact->ball->inverseMass;
-    invM[mat_idx(6, 2, 2)] = contact->ball->inverseInertia;
+    invM[mat_idx(6, 0, 0)] = contact->ball->inverse_mass;
+    invM[mat_idx(6, 1, 1)] = contact->ball->inverse_mass;
+    invM[mat_idx(6, 2, 2)] = contact->ball->inverse_inertia;
 
     if (contact->type == CONTACT_BALL_BALL) {
-        invM[mat_idx(6, 3, 3)] = contact->other.ball->inverseMass;
-        invM[mat_idx(6, 4, 4)] = contact->other.ball->inverseMass;
-        invM[mat_idx(6, 5, 5)] = contact->other.ball->inverseInertia;
+        invM[mat_idx(6, 3, 3)] = contact->other.ball->inverse_mass;
+        invM[mat_idx(6, 4, 4)] = contact->other.ball->inverse_mass;
+        invM[mat_idx(6, 5, 5)] = contact->other.ball->inverse_inertia;
     }
 }

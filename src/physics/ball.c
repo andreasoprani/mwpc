@@ -5,9 +5,10 @@
 
 #define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
 
-Ball *ball_create(const Vector2 position, const float radius, const float mass)
+ball_t *ball_create(const Vector2 position, const float radius,
+                    const float mass)
 {
-    Ball *ball = malloc(sizeof(Ball));
+    ball_t *ball = malloc(sizeof(ball_t));
 
     ball->radius = radius;
 
@@ -16,20 +17,20 @@ Ball *ball_create(const Vector2 position, const float radius, const float mass)
     ball->acceleration = Vector2Zero();
 
     ball->rotation = 0.f;
-    ball->angularVelocity = 0.f;
-    ball->angularAcceleration = 0.f;
+    ball->angular_velocity = 0.f;
+    ball->angular_acceleration = 0.f;
 
     ball->mass = mass >= 0 ? mass : 0;
     if (mass > 0)
-        ball->inverseMass = 1.f / ball->mass;
+        ball->inverse_mass = 1.f / ball->mass;
     else
-        ball->inverseMass = 0.f;
+        ball->inverse_mass = 0.f;
 
     ball->inertia = 0.5 * radius * radius * mass;
     if (ball->inertia > 0)
-        ball->inverseInertia = 1.f / ball->inertia;
+        ball->inverse_inertia = 1.f / ball->inertia;
     else
-        ball->inverseInertia = 0.f;
+        ball->inverse_inertia = 0.f;
 
     ball->restitution = DEFAULT_BALL_RESTITUTION;
     ball->friction = DEFAULT_BALL_FRICTION;
@@ -40,86 +41,88 @@ Ball *ball_create(const Vector2 position, const float radius, const float mass)
     return ball;
 }
 
-int ball_is_static(const Ball *ball)
+int ball_is_static(const ball_t *ball)
 {
     const float epsilon = 0.005f;
-    return fabs(ball->inverseMass) < epsilon;
+    return fabs(ball->inverse_mass) < epsilon;
 }
 
-void ball_add_force(Ball *ball, const Vector2 force)
+void ball_add_force(ball_t *ball, const Vector2 force)
 {
-    ball->sumForces = Vector2Add(ball->sumForces, force);
+    ball->sum_forces = Vector2Add(ball->sum_forces, force);
 }
 
-void ball_add_torque(Ball *ball, const float torque)
+void ball_add_torque(ball_t *ball, const float torque)
 {
-    ball->sumTorques += torque;
+    ball->sum_torques += torque;
 }
 
-void ball_clear_forces(Ball *ball)
+void ball_clear_forces(ball_t *ball)
 {
-    ball->sumForces = Vector2Zero();
-    ball->sumTorques = 0;
+    ball->sum_forces = Vector2Zero();
+    ball->sum_torques = 0;
 }
 
-void ball_apply_impulse_linear(Ball *ball, const Vector2 j)
-{
-    if (ball_is_static(ball))
-        return;
-
-    ball->velocity =
-        Vector2Add(ball->velocity, Vector2Scale(j, ball->inverseMass));
-}
-
-void ball_apply_impulse_angular(Ball *ball, const float j)
-{
-    if (ball_is_static(ball))
-        return;
-
-    ball->angularVelocity += j * ball->inverseInertia;
-}
-
-void ball_apply_impulse_at_point(Ball *ball, const Vector2 j, const Vector2 r)
+void ball_apply_impulse_linear(ball_t *ball, const Vector2 j)
 {
     if (ball_is_static(ball))
         return;
 
     ball->velocity =
-        Vector2Add(ball->velocity, Vector2Scale(j, ball->inverseMass));
-    ball->angularVelocity += CROSS(r, j) * ball->inverseInertia;
+        Vector2Add(ball->velocity, Vector2Scale(j, ball->inverse_mass));
 }
 
-void ball_integrate_forces(Ball *ball, const float dt)
+void ball_apply_impulse_angular(ball_t *ball, const float j)
 {
     if (ball_is_static(ball))
         return;
 
-    ball->acceleration = Vector2Scale(ball->sumForces, ball->inverseMass);
-    ball->angularAcceleration = ball->sumTorques * ball->inverseInertia;
+    ball->angular_velocity += j * ball->inverse_inertia;
+}
+
+void ball_apply_impulse_at_point(ball_t *ball, const Vector2 j, const Vector2 r)
+{
+    if (ball_is_static(ball))
+        return;
+
+    ball->velocity =
+        Vector2Add(ball->velocity, Vector2Scale(j, ball->inverse_mass));
+    ball->angular_velocity += CROSS(r, j) * ball->inverse_inertia;
+}
+
+void ball_integrate_forces(ball_t *ball, const float dt)
+{
+    if (ball_is_static(ball))
+        return;
+
+    ball->acceleration = Vector2Scale(ball->sum_forces, ball->inverse_mass);
+    ball->angular_acceleration = ball->sum_torques * ball->inverse_inertia;
 
     ball->velocity =
         Vector2Add(ball->velocity, Vector2Scale(ball->acceleration, dt));
-    ball->rotation += ball->angularVelocity * dt;
+    ball->rotation += ball->angular_velocity * dt;
 
     ball_clear_forces(ball);
 }
 
-void ball_integrate_velocities(Ball *ball, const float dt)
+void ball_integrate_velocities(ball_t *ball, const float dt)
 {
     if (ball_is_static(ball))
         return;
 
     ball->position =
         Vector2Add(ball->position, Vector2Scale(ball->velocity, dt));
-    ball->rotation += ball->angularVelocity * dt;
+    ball->rotation += ball->angular_velocity * dt;
 }
 
-Vector2 ball_local_space_to_world_space(Ball *ball, const Vector2 localPosition)
+Vector2 ball_local_space_to_world_space(ball_t *ball,
+                                        const Vector2 localPosition)
 {
     return Vector2Add(ball->position,
                       Vector2Rotate(localPosition, ball->rotation));
 }
-Vector2 ball_world_space_to_local_space(Ball *ball, const Vector2 worldPosition)
+Vector2 ball_world_space_to_local_space(ball_t *ball,
+                                        const Vector2 worldPosition)
 {
     return Vector2Rotate(Vector2Subtract(worldPosition, ball->position),
                          -ball->rotation);

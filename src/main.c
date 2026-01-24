@@ -4,7 +4,7 @@
 
 int main()
 {
-    App *app = app_setup();
+    app_t *app = app_setup();
 
     while (WindowShouldClose() == false) {
         app_frame(app);

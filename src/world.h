@@ -5,26 +5,26 @@
 #include "physics/contact.h"
 #include "physics/wall.h"
 
-typedef struct World {
-    Ball *balls;
+typedef struct world {
+    ball_t *balls;
     unsigned int balls_capacity;
-    unsigned int ballsLength;
+    unsigned int balls_length;
 
-    Table *table;
+    table_t *table;
 
-    Contact *contacts;
+    contact_t *contacts;
     unsigned int contacts_capacity;
     unsigned int contacts_length;
 
-    bool gravityEnabled;
-} World;
+    bool gravity_enabled;
+} world_t;
 
-World *world_create(Table *table);
-void world_destroy(World *world);
-void world_update(World *world, float dt);
+world_t *world_create(table_t *table);
+void world_destroy(world_t *world);
+void world_update(world_t *world, float dt);
 
-void world_add_ball(World *world, Ball *ball);
+void world_add_ball(world_t *world, ball_t *ball);
 
-void world_toggle_gravity(World *world);
+void world_toggle_gravity(world_t *world);
 
 #endif

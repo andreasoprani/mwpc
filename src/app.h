@@ -4,16 +4,15 @@
 #include "input.h"
 #include "world.h"
 
-typedef struct App {
-    World *world;
-    Input *input;
+typedef struct app {
+    world_t *world;
+    input_t *input;
 
     bool debug;
-    bool debugRun;
 
-} App;
+} app_t;
 
-App *app_setup();
-void app_frame(App *app);
+app_t *app_setup();
+void app_frame(app_t *app);
 
 #endif

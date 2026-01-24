@@ -3,11 +3,11 @@
 #include <raymath.h>
 #include <stdlib.h>
 
-Table *table_create(const int num_walls, const Vector2 *vertices)
+table_t *table_create(const int num_walls, const Vector2 *vertices)
 {
-    Table *table = malloc(sizeof(Table));
+    table_t *table = malloc(sizeof(table_t));
     table->num_walls = num_walls;
-    table->walls = malloc(num_walls * sizeof(Wall));
+    table->walls = malloc(num_walls * sizeof(wall_t));
     for (int i = 0; i < num_walls; i++) {
         table->walls[i].start = vertices[i];
         table->walls[i].direction = Vector2Normalize(
@@ -23,7 +23,7 @@ Table *table_create(const int num_walls, const Vector2 *vertices)
     return table;
 }
 
-Vector2 wall_get_outside_normal(const Wall *wall)
+Vector2 wall_get_outside_normal(const wall_t *wall)
 {
     Vector2 normal = {wall->direction.y, -wall->direction.x};
     return normal;

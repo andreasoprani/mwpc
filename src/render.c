@@ -8,11 +8,11 @@
 #define DEBUG_WALL_COLOR RED
 #define NORMAL_WALL_COLOR WHITE
 
-void render_table(Table *table, bool debug)
+void render_table(table_t *table, bool debug)
 {
     for (int i = 0; i < table->num_walls; i++) {
-        Wall *wall = &table->walls[i];
-        Wall *next_wall = &table->walls[(i + 1) % table->num_walls];
+        wall_t *wall = &table->walls[i];
+        wall_t *next_wall = &table->walls[(i + 1) % table->num_walls];
         Color color = (debug && wall->is_colliding) ? DEBUG_WALL_COLOR
                                                     : NORMAL_WALL_COLOR;
         DrawLine(wall->start.x, wall->start.y, next_wall->start.x,
@@ -29,7 +29,7 @@ void render_table(Table *table, bool debug)
     }
 }
 
-void render_ball(Ball *ball, bool debug)
+void render_ball(ball_t *ball, bool debug)
 {
     Color color =
         (debug && ball->is_colliding) ? DEBUG_BALL_COLOR : NORMAL_BALL_COLOR;
@@ -39,7 +39,7 @@ void render_ball(Ball *ball, bool debug)
              ball->position.y + ball->radius * sin(ball->rotation), color);
 }
 
-void render_contact(Contact *contact)
+void render_contact(contact_t *contact)
 {
     DrawCircle(contact->start.x, contact->start.y, 2, RED);
     DrawCircle(contact->end.x, contact->end.y, 2, GREEN);
@@ -49,13 +49,13 @@ void render_contact(Contact *contact)
              contact->start.y + contact->normal.y * contact->depth, RED);
 }
 
-void render_world(World *world, bool debug)
+void render_world(world_t *world, bool debug)
 {
     BeginDrawing();
     ClearBackground(BLACK);
 
     render_table(world->table, debug);
-    for (int i = 0; i < world->ballsLength; i++) {
+    for (int i = 0; i < world->balls_length; i++) {
         render_ball(&world->balls[i], debug);
     }
 
@@ -68,10 +68,11 @@ void render_world(World *world, bool debug)
     if (debug) {
         DrawText("Debug Mode ON", 5, GetScreenHeight() - 25, 20, RED);
 
-        for (int i = 0; i < world->ballsLength; i++) {
+        for (int i = 0; i < world->balls_length; i++) {
             char speed_text[128];
-            sprintf(speed_text, "Ball %d, position: (%f, %f), speed: (%f, %f)",
-                    i, world->balls[i].position.x, world->balls[i].position.y,
+            sprintf(speed_text,
+                    "ball_t %d, position: (%f, %f), speed: (%f, %f)", i,
+                    world->balls[i].position.x, world->balls[i].position.y,
                     world->balls[i].velocity.x, world->balls[i].velocity.y);
             DrawText(speed_text, 5, 5 + 20 * i, 20, RED);
         }

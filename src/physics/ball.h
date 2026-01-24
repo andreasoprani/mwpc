@@ -5,7 +5,7 @@
 #include <raymath.h>
 #include <stdbool.h>
 
-typedef struct Ball {
+typedef struct ball_t {
     float radius;
 
     Vector2 position;
@@ -13,43 +13,45 @@ typedef struct Ball {
     Vector2 acceleration;
 
     float rotation;
-    float angularVelocity;
-    float angularAcceleration;
+    float angular_velocity;
+    float angular_acceleration;
 
-    Vector2 sumForces;
-    float sumTorques;
+    Vector2 sum_forces;
+    float sum_torques;
 
     float mass;
-    float inverseMass;
+    float inverse_mass;
 
     float inertia;
-    float inverseInertia;
+    float inverse_inertia;
 
     float restitution;
     float friction;
 
     // Debug
     bool is_colliding;
-} Ball;
+} ball_t;
 
-Ball *ball_create(const Vector2 position, const float radius, const float mass);
+ball_t *ball_create(const Vector2 position, const float radius,
+                    const float mass);
 
-int ball_is_static(const Ball *ball);
+int ball_is_static(const ball_t *ball);
 
-void ball_add_force(Ball *ball, const Vector2 force);
-void ball_add_torque(Ball *ball, const float torque);
-void ball_clear_forces(Ball *ball);
+void ball_add_force(ball_t *ball, const Vector2 force);
+void ball_add_torque(ball_t *ball, const float torque);
+void ball_clear_forces(ball_t *ball);
 
-void ball_apply_impulse_linear(Ball *ball, const Vector2 j);
-void ball_apply_impulse_angular(Ball *ball, const float j);
-void ball_apply_impulse_at_point(Ball *ball, const Vector2 j, const Vector2 r);
+void ball_apply_impulse_linear(ball_t *ball, const Vector2 j);
+void ball_apply_impulse_angular(ball_t *ball, const float j);
+void ball_apply_impulse_at_point(ball_t *ball, const Vector2 j,
+                                 const Vector2 r);
 
-void ball_integrate_forces(Ball *ball, const float dt);
-void ball_integrate_velocities(Ball *ball, const float dt);
+void ball_integrate_forces(ball_t *ball, const float dt);
+void ball_integrate_velocities(ball_t *ball, const float dt);
 
-Vector2 ball_local_space_to_world_space(Ball *ball,
+Vector2 ball_local_space_to_world_space(ball_t *ball,
                                         const Vector2 localPosition);
-Vector2 ball_world_space_to_local_space(Ball *ball,
+Vector2 ball_world_space_to_local_space(ball_t *ball,
                                         const Vector2 worldPosition);
 
 #endif
