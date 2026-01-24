@@ -5,10 +5,12 @@
 
 #define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
 
-ball_t *ball_create(const Vector2 position, const float radius,
-                    const float mass)
+ball_t *ball_create(const unsigned int id, const Vector2 position,
+                    const float radius, const float mass)
 {
     ball_t *ball = malloc(sizeof(ball_t));
+
+    ball->id = id;
 
     ball->radius = radius;
 

@@ -18,8 +18,8 @@ void toggle_debug(app_t *app)
 
 ball_t *add_ball(world_t *world, Vector2 position)
 {
-    ball_t *ball = ball_create(position, 20.f, 100.f);
-    ball->velocity.x = 1000.0f;
+    ball_t *ball =
+        ball_create(world_next_ball_id(world), position, 20.f, 100.f);
     world_add_ball(world, ball);
     return ball;
 }

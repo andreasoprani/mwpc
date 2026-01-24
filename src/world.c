@@ -130,6 +130,17 @@ void world_add_ball(world_t *world, ball_t *ball)
     world->balls[world->balls_length++] = *ball;
 }
 
+unsigned int world_next_ball_id(world_t *world)
+{
+    unsigned int next_id = 0;
+    for (unsigned int i = 0; i < world->balls_length; i++) {
+        if (world->balls[i].id >= next_id) {
+            next_id = world->balls[i].id + 1;
+        }
+    };
+    return next_id;
+}
+
 void world_toggle_gravity(world_t *world)
 {
     world->gravity_enabled = !world->gravity_enabled;

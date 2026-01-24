@@ -5,3 +5,5 @@
 - [x] Testing env with initial velocities and steps to test collision with walls
 - [x] Code style
 - [ ] Better debugging step options to test collisions (step, run, go back)
+- [x] Ball number
+- [ ] Controlling ball

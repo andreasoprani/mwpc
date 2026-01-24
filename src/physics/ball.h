@@ -6,6 +6,8 @@
 #include <stdbool.h>
 
 typedef struct ball_t {
+    unsigned int id;
+
     float radius;
 
     Vector2 position;
@@ -32,8 +34,8 @@ typedef struct ball_t {
     bool is_colliding;
 } ball_t;
 
-ball_t *ball_create(const Vector2 position, const float radius,
-                    const float mass);
+ball_t *ball_create(const unsigned int id, const Vector2 position,
+                    const float radius, const float mass);
 
 int ball_is_static(const ball_t *ball);
 

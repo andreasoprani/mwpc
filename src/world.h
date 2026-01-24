@@ -24,6 +24,7 @@ void world_destroy(world_t *world);
 void world_update(world_t *world, float dt);
 
 void world_add_ball(world_t *world, ball_t *ball);
+unsigned int world_next_ball_id(world_t *world);
 
 void world_toggle_gravity(world_t *world);
 
