@@ -4,7 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/homebrew/Cellar/raylib/5.5/include"
+                "/opt/homebrew/Cellar/raylib/5.5/include",
+                "${workspaceFolder}/lib"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

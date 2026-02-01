@@ -1,6 +1,9 @@
+#define RAYGUI_IMPLEMENTATION
+
 #include "render.h"
 #include "app.h"
 #include "physics/shot.h"
+#include "raygui.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <stdio.h>

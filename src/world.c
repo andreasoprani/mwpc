@@ -21,7 +21,7 @@ world_t *world_create(table_t *table)
     world->contacts_capacity = contacts_capacity;
     world->contacts_length = 0;
 
-    world->gravity_enabled = true;
+    world->gravity_enabled = false;
 
     world->table = table;
     return world;

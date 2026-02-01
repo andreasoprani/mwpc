@@ -1,5 +1,5 @@
 LIB := $(shell pkg-config --libs raylib)
-CFLAGS := $(shell pkg-config --cflags raylib)
+CFLAGS := $(shell pkg-config --cflags raylib) -Ilib
 CC = cc
 APPNAME = app
 

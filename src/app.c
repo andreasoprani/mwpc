@@ -1,17 +1,13 @@
 #include "app.h"
-#include "input.h"
-#include "physics/ball.h"
-#include "physics/constants.h"
-#include "physics/shot.h"
+#include "constants.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "render.h"
-#include "world.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
 
 void toggle_debug(app_t *app)
 {
@@ -20,19 +16,29 @@ void toggle_debug(app_t *app)
     printf("Debug mode: %s\n", app->debug ? "ON" : "OFF");
 }
 
-world_t *world_setup(app_t *app)
+table_t *table_setup(app_t *app)
 {
-    int wall_padding = 50;
+    float sw = GetScreenWidth();
+    float sh = GetScreenHeight();
 
-    Vector2 tl = {wall_padding, wall_padding};
-    Vector2 tr = {GetScreenWidth() - wall_padding, wall_padding};
-    Vector2 bl = {wall_padding, GetScreenHeight() - wall_padding};
-    Vector2 br = {GetScreenWidth() - wall_padding,
-                  GetScreenHeight() - wall_padding};
+    float w_padding = (sw - TABLE_WIDTH) / 2;
+    float h_padding = (sh - TABLE_HEIGHT) / 2;
+
+    Vector2 tl = {w_padding, h_padding};
+    Vector2 tr = {sw - w_padding, h_padding};
+    Vector2 bl = {w_padding, sh - h_padding};
+    Vector2 br = {sw - w_padding, sh - h_padding};
 
     Vector2 vertices[4] = {tl, tr, br, bl};
 
     table_t *table = table_create(4, vertices);
+
+    return table;
+}
+
+world_t *world_setup(app_t *app)
+{
+    table_t *table = table_setup(app);
 
     world_t *world = world_create(table);
 
