@@ -33,7 +33,7 @@ void world_destroy(world_t *world)
     free(world);
 }
 
-void world_update(world_t *world, float dt)
+void world_update(world_t *world, const float dt)
 {
     world->contacts_length = 0;
 
@@ -130,7 +130,14 @@ void world_add_ball(world_t *world, ball_t *ball)
     world->balls[world->balls_length++] = *ball;
 }
 
-unsigned int world_next_ball_id(world_t *world)
+void world_add_ball_at_position(world_t *world, const Vector2 position)
+{
+    ball_t *ball = ball_create(world_next_ball_id(world), position,
+                               BALL_DEFAULT_RADIUS, BALL_DEFAULT_MASS);
+    world_add_ball(world, ball);
+}
+
+unsigned int world_next_ball_id(const world_t *world)
 {
     unsigned int next_id = 0;
     for (unsigned int i = 0; i < world->balls_length; i++) {

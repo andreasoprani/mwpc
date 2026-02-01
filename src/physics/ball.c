@@ -92,6 +92,12 @@ void ball_apply_impulse_at_point(ball_t *ball, const Vector2 j, const Vector2 r)
     ball->angular_velocity += CROSS(r, j) * ball->inverse_inertia;
 }
 
+void ball_reset_impulses(ball_t *ball)
+{
+    ball->velocity = Vector2Zero();
+    ball->angular_velocity = 0;
+}
+
 void ball_integrate_forces(ball_t *ball, const float dt)
 {
     if (ball_is_static(ball))

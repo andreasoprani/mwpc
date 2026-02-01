@@ -1,5 +1,8 @@
 #include "render.h"
+#include "app.h"
+#include "physics/shot.h"
 #include "raylib.h"
+#include "raymath.h"
 #include <stdio.h>
 
 #define DEBUG_BALL_COLOR RED
@@ -8,7 +11,7 @@
 #define DEBUG_WALL_COLOR RED
 #define NORMAL_WALL_COLOR WHITE
 
-void render_table(table_t *table, bool debug)
+void render_table(const table_t *table, const bool debug)
 {
     for (int i = 0; i < table->num_walls; i++) {
         wall_t *wall = &table->walls[i];
@@ -29,7 +32,7 @@ void render_table(table_t *table, bool debug)
     }
 }
 
-void render_ball(ball_t *ball, bool debug)
+void render_ball(const ball_t *ball, const bool debug)
 {
     const Color color =
         (debug && ball->is_colliding) ? DEBUG_BALL_COLOR : NORMAL_BALL_COLOR;
@@ -59,7 +62,19 @@ void render_ball(ball_t *ball, bool debug)
              rotation_line_end.y, color);
 }
 
-void render_contact(contact_t *contact)
+void render_shot(const ball_t *ball, const shot_t *shot)
+{
+    Vector2 shot_vec = shot_vector(shot);
+    Vector2 shot_dir = Vector2Normalize(shot_vec);
+    Vector2 line_start =
+        Vector2Add(ball->position, Vector2Scale(shot_dir, ball->radius));
+
+    Vector2 line_end = Vector2Add(line_start, shot_vec);
+
+    DrawLine(line_start.x, line_start.y, line_end.x, line_end.y, WHITE);
+}
+
+void render_contact(const contact_t *contact)
 {
     DrawCircle(contact->start.x, contact->start.y, 2, RED);
     DrawCircle(contact->end.x, contact->end.y, 2, GREEN);
@@ -69,34 +84,31 @@ void render_contact(contact_t *contact)
              contact->start.y + contact->normal.y * contact->depth, RED);
 }
 
-void render_world(world_t *world, bool debug)
+void render_debug_info(const world_t *world, const input_t *input)
+{
+    for (int i = 0; i < world->contacts_length; i++) {
+        render_contact(&world->contacts[i]);
+    }
+
+    DrawText("Debug Mode ON", 5, GetScreenHeight() - 25, 20, RED);
+}
+
+void render_world(const app_t *app)
 {
     BeginDrawing();
     ClearBackground(BLACK);
 
-    render_table(world->table, debug);
-    for (int i = 0; i < world->balls_length; i++) {
-        render_ball(&world->balls[i], debug);
+    render_table(app->world->table, app->debug);
+    for (int i = 0; i < app->world->balls_length; i++) {
+        render_ball(&app->world->balls[i], app->debug);
     }
 
-    if (debug) {
-        for (int i = 0; i < world->contacts_length; i++) {
-            render_contact(&world->contacts[i]);
-        }
+    if (app->shot != NULL) {
+        render_shot(&app->world->balls[0], app->shot);
     }
 
-    if (debug) {
-        DrawText("Debug Mode ON", 5, GetScreenHeight() - 25, 20, RED);
-
-        for (int i = 0; i < world->balls_length; i++) {
-            char speed_text[128];
-            snprintf(speed_text, sizeof(speed_text),
-                     "ball_t %d, position: (%f, %f), speed: "
-                     "(%f, %f)",
-                     i, world->balls[i].position.x, world->balls[i].position.y,
-                     world->balls[i].velocity.x, world->balls[i].velocity.y);
-            DrawText(speed_text, 5, 5 + 20 * i, 20, RED);
-        }
+    if (app->debug) {
+        render_debug_info(app->world, app->input);
     }
 
     EndDrawing();

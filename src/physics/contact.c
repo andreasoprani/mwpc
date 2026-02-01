@@ -8,10 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
-
 bool balls_are_colliding(ball_t *ball1, ball_t *ball2, contact_t *contact)
 {
     const Vector2 ab = Vector2Subtract(ball2->position, ball1->position);

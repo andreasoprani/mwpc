@@ -7,6 +7,7 @@ typedef struct input {
     Vector2 mouse_position;
 
     bool mouse_left_pressed;
+    bool mouse_left_released;
 
     bool key_d_pressed;
     bool key_g_pressed;

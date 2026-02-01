@@ -1,11 +1,12 @@
 #ifndef PHYSICS_BALL_H
 #define PHYSICS_BALL_H
 
+#include "constants.h"
 #include <raylib.h>
 #include <raymath.h>
 #include <stdbool.h>
 
-typedef struct ball_t {
+typedef struct ball {
     unsigned int id;
 
     float radius;
@@ -47,6 +48,7 @@ void ball_apply_impulse_linear(ball_t *ball, const Vector2 j);
 void ball_apply_impulse_angular(ball_t *ball, const float j);
 void ball_apply_impulse_at_point(ball_t *ball, const Vector2 j,
                                  const Vector2 r);
+void ball_reset_impulses(ball_t *ball);
 
 void ball_integrate_forces(ball_t *ball, const float dt);
 void ball_integrate_velocities(ball_t *ball, const float dt);

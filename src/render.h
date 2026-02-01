@@ -1,5 +1,3 @@
-#include "physics/ball.h"
-#include "physics/wall.h"
-#include "world.h"
+#include "app.h"
 
-void render_world(world_t *world, bool debug);
+void render_world(const app_t *app);

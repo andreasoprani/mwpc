@@ -26,6 +26,7 @@ void input_update(input_t *input)
     input->mouse_position = GetMousePosition();
 
     input->mouse_left_pressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+    input->mouse_left_released = IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
 
     input->key_d_pressed = IsKeyPressed(KEY_D);
     input->key_g_pressed = IsKeyPressed(KEY_G);
