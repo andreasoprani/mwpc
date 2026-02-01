@@ -6,4 +6,8 @@
 - [x] Code style
 - [ ] Better debugging step options to test collisions (step, run, go back)
 - [x] Ball number
-- [ ] Controlling ball
+- [x] white ball control
+- [ ] rendering actual balls (balatro planets?)
+- [ ] controlling constants for debugging
+- [ ] holes
+- [ ] game loop

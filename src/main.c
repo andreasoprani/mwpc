@@ -6,7 +6,7 @@ int main()
 {
     app_t *app = app_setup();
 
-    while (WindowShouldClose() == false) {
+    while (!WindowShouldClose()) {
         app_frame(app);
     }
 
