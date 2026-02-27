@@ -103,11 +103,11 @@ void render_world(const app_t *app)
 
     render_table(app->world->table, app->debug);
     for (int i = 0; i < app->world->balls_length; i++) {
-        render_ball(&app->world->balls[i], app->debug);
+        render_ball(app->world->balls[i], app->debug);
     }
 
     if (app->shot != NULL) {
-        render_shot(&app->world->balls[0], app->shot);
+        render_shot(app->world->balls[0], app->shot);
     }
 
     if (app->debug) {

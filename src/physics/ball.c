@@ -3,8 +3,6 @@
 #include "raymath.h"
 #include <stdlib.h>
 
-#define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
-
 ball_t *ball_create(const unsigned int id, const Vector2 position,
                     const float radius, const float mass)
 {
@@ -108,7 +106,7 @@ void ball_integrate_forces(ball_t *ball, const float dt)
 
     ball->velocity =
         Vector2Add(ball->velocity, Vector2Scale(ball->acceleration, dt));
-    ball->rotation += ball->angular_velocity * dt;
+    ball->angular_velocity += ball->angular_acceleration * dt;
 
     ball_clear_forces(ball);
 }

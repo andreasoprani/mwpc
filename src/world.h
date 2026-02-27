@@ -6,7 +6,7 @@
 #include "physics/wall.h"
 
 typedef struct world {
-    ball_t *balls;
+    ball_t **balls;
     unsigned int balls_capacity;
     unsigned int balls_length;
 

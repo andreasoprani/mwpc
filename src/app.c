@@ -114,7 +114,7 @@ void app_apply_shot(app_t *app)
     if (app->shot == NULL)
         return;
 
-    ball_t *ball = &app->world->balls[0];
+    ball_t *ball = app->world->balls[0];
 
     Vector2 shot_vec = shot_vector(app->shot);
 
@@ -122,5 +122,6 @@ void app_apply_shot(app_t *app)
     ball_apply_impulse_linear(ball,
                               Vector2Scale(shot_vec, SHOT_IMPULSE_MULTIPLIER));
 
+    free(app->shot);
     app->shot = NULL;
 }
