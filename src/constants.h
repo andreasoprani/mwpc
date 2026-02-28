@@ -3,7 +3,7 @@
 
 #include "physics/constants.h"
 
-#define TABLE_HEIGHT 1000
-#define TABLE_WIDTH 500
+#define TABLE_H_PAD 50
+#define TABLE_RATIO 2.0f
 
 #endif

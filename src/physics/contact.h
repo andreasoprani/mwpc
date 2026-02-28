@@ -33,6 +33,7 @@ bool ball_wall_are_colliding(ball_t *ball, wall_t *wall, contact_t *contact);
 void init_contact_resolution_info(contact_t *contact);
 void contact_pre_solve(contact_t *contact, float dt);
 void contact_solve(contact_t *contact, float dt);
+void contact_correct_position(contact_t *contact, float dt);
 
 float get_contact_friction(contact_t *contact);
 float get_contact_restitution(contact_t *contact);

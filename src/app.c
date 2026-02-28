@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SCREEN_WIDTH 1920
-#define SCREEN_HEIGHT 1080
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
 
 void toggle_debug(app_t *app)
 {
@@ -21,13 +21,15 @@ table_t *table_setup(app_t *app)
     float sw = GetScreenWidth();
     float sh = GetScreenHeight();
 
-    float w_padding = (sw - TABLE_WIDTH) / 2;
-    float h_padding = (sh - TABLE_HEIGHT) / 2;
+    const float table_height = sh - 2 * TABLE_H_PAD;
+    const float table_width = table_height / TABLE_RATIO;
 
-    Vector2 tl = {w_padding, h_padding};
-    Vector2 tr = {sw - w_padding, h_padding};
-    Vector2 bl = {w_padding, sh - h_padding};
-    Vector2 br = {sw - w_padding, sh - h_padding};
+    float w_padding = (sw - table_width) / 2;
+
+    Vector2 tl = {w_padding, TABLE_H_PAD};
+    Vector2 tr = {sw - w_padding, TABLE_H_PAD};
+    Vector2 bl = {w_padding, sh - TABLE_H_PAD};
+    Vector2 br = {sw - w_padding, sh - TABLE_H_PAD};
 
     Vector2 vertices[4] = {tl, tr, br, bl};
 

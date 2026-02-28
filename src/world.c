@@ -53,9 +53,9 @@ void world_update(world_t *world, const float dt)
                 const float distance_squared = Vector2LengthSqr(distance);
 
                 // Calculate the force between the two balls
-                float force_magnitude = GRAVITATIONAL_CONSTANT *
-                                        world->balls[i]->mass *
-                                        world->balls[j]->mass / distance_squared;
+                float force_magnitude =
+                    GRAVITATIONAL_CONSTANT * world->balls[i]->mass *
+                    world->balls[j]->mass / distance_squared;
 
                 Vector2 force =
                     Vector2Scale(Vector2Normalize(distance), force_magnitude);
@@ -113,6 +113,10 @@ void world_update(world_t *world, const float dt)
         for (int i = 0; i < world->contacts_length; i++) {
             contact_solve(&world->contacts[i], dt);
         }
+    }
+
+    for (int i = 0; i < world->contacts_length; i++) {
+        contact_correct_position(&world->contacts[i], dt);
     }
 
     for (int i = 0; i < world->balls_length; i++)

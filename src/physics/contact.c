@@ -120,31 +120,22 @@ void contact_pre_solve(contact_t *contact, float dt)
         contact->jacobian[11] = CROSS(r_other, t);
     }
 
-    float C = Vector2DotProduct( // NOLINT(readability-identifier-naming)
-        Vector2Subtract(contact->end, contact->start), Vector2Negate(n));
-    C = MIN(0.f, C + 0.01f);
-    if (dt == 0) {
-        contact->bias = 0.f;
+    float e = get_contact_restitution(contact);
+    Vector2 w_ball = {-contact->ball->angular_velocity * r_ball.y,
+                      contact->ball->angular_velocity * r_ball.x};
+    Vector2 v_ball = Vector2Add(contact->ball->velocity, w_ball);
+
+    Vector2 v_other;
+    if (type == CONTACT_BALL_BALL) {
+        const Vector2 w_other = {
+            -contact->other.ball->angular_velocity * r_other.y,
+            contact->other.ball->angular_velocity * r_other.x};
+        v_other = Vector2Add(contact->other.ball->velocity, w_other);
     } else {
-        float e = get_contact_restitution(contact);
-        Vector2 w_ball = {-contact->ball->angular_velocity * r_ball.y,
-                          contact->ball->angular_velocity * r_ball.x};
-        Vector2 v_ball = Vector2Add(contact->ball->velocity, w_ball);
-
-        Vector2 v_other;
-        if (type == CONTACT_BALL_BALL) {
-            const Vector2 w_other = {
-                -contact->other.ball->angular_velocity * r_other.y,
-                contact->other.ball->angular_velocity * r_other.x};
-            v_other = Vector2Add(contact->other.ball->velocity, w_other);
-        } else {
-            v_other = Vector2Zero();
-        }
-
-        contact->bias =
-            (CONTACT_BETA / dt) * C +
-            e * Vector2DotProduct(Vector2Subtract(v_ball, v_other), n);
+        v_other = Vector2Zero();
     }
+
+    contact->bias = -e * Vector2DotProduct(Vector2Subtract(v_ball, v_other), n);
 }
 
 void contact_solve(contact_t *contact, float dt)
@@ -204,6 +195,31 @@ void contact_solve(contact_t *contact, float dt)
         ball_apply_impulse_linear(contact->other.ball, il2);
         ball_apply_impulse_angular(contact->other.ball, ia2);
     }
+}
+
+void contact_correct_position(contact_t *contact, float dt)
+{
+    if (contact->depth <= 0)
+        return;
+
+    float total_inv_mass =
+        contact->ball->inverse_mass + (contact->type == CONTACT_BALL_BALL
+                                           ? contact->other.ball->inverse_mass
+                                           : 0.0f);
+    if (total_inv_mass == 0.f)
+        return;
+
+    Vector2 correction = Vector2Scale(
+        contact->normal,
+        contact->depth * CONTACT_POSITION_CORRECTION / total_inv_mass);
+
+    contact->ball->position =
+        Vector2Subtract(contact->ball->position,
+                        Vector2Scale(correction, contact->ball->inverse_mass));
+    if (contact->type == CONTACT_BALL_BALL)
+        contact->other.ball->position = Vector2Add(
+            contact->other.ball->position,
+            Vector2Scale(correction, contact->other.ball->inverse_mass));
 }
 
 float get_contact_friction(contact_t *contact)
