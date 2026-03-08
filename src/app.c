@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "render.h"
+#include "textures.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -70,6 +71,7 @@ app_t *app_setup()
 
     app->debug = false;
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Milky Way Pool Club");
+    app->textures = textures_setup();
     SetTargetFPS(120);
     app->world = world_setup(app);
     return app;

@@ -1,26 +1,24 @@
+#include "textures.h"
 #define RAYGUI_IMPLEMENTATION
 
-#include "render.h"
 #include "app.h"
 #include "physics/shot.h"
 #include "raygui.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "render.h"
 #include <stdio.h>
 
-#define DEBUG_BALL_COLOR RED
-#define NORMAL_BALL_COLOR WHITE
-
-#define DEBUG_WALL_COLOR RED
-#define NORMAL_WALL_COLOR WHITE
+#define DEBUG_COLLISION_WALL_COLOR RED
+#define DEBUG_NORMAL_WALL_COLOR WHITE
 
 void render_table(const table_t *table, const bool debug)
 {
     for (int i = 0; i < table->num_walls; i++) {
         wall_t *wall = &table->walls[i];
         wall_t *next_wall = &table->walls[(i + 1) % table->num_walls];
-        Color color = (debug && wall->is_colliding) ? DEBUG_WALL_COLOR
-                                                    : NORMAL_WALL_COLOR;
+        Color color = (debug && wall->is_colliding) ? DEBUG_COLLISION_WALL_COLOR
+                                                    : DEBUG_NORMAL_WALL_COLOR;
         DrawLine(wall->start.x, wall->start.y, next_wall->start.x,
                  next_wall->start.y, color);
 
@@ -35,34 +33,44 @@ void render_table(const table_t *table, const bool debug)
     }
 }
 
-void render_ball(const ball_t *ball, const bool debug)
+void render_ball(const ball_t *ball, const textures_t *textures,
+                 const bool debug)
 {
-    const Color color =
-        (debug && ball->is_colliding) ? DEBUG_BALL_COLOR : NORMAL_BALL_COLOR;
+    Texture2D tex = get_planet_texture(textures, ball->id);
 
-    // Ball outline
-    DrawCircleLines(ball->position.x, ball->position.y, ball->radius, color);
+    Rectangle source = {0, 0, tex.width, tex.height};
+    float diameter = ball->radius * 2;
+    Rectangle dest = {ball->position.x, ball->position.y, diameter, diameter};
+    Vector2 origin = {ball->radius, ball->radius};
 
-    // Ball ID in the center
-    char id_text[12];
-    snprintf(id_text, sizeof(id_text), "%u", ball->id);
-    const Font font = GetFontDefault();
-    const float font_size = 10;
-    const float spacing = 2.0f;
-    const Vector2 text_size = MeasureTextEx(font, id_text, font_size, spacing);
-    const Vector2 origin = {text_size.x / 2.0f, text_size.y / 2.0f};
-    DrawTextPro(font, id_text, ball->position, origin, ball->rotation * RAD2DEG,
-                font_size, spacing, color);
+    DrawTexturePro(tex, source, dest, origin, ball->rotation * RAD2DEG,
+                   (debug && ball->is_colliding) ? RED : WHITE);
 
-    // Rotation line
-    const Vector2 rotation_line_start = {
-        ball->position.x + 0.4f * ball->radius * cos(ball->rotation),
-        ball->position.y + 0.4f * ball->radius * sin(ball->rotation)};
-    const Vector2 rotation_line_end = {
-        ball->position.x + ball->radius * cos(ball->rotation),
-        ball->position.y + ball->radius * sin(ball->rotation)};
-    DrawLine(rotation_line_start.x, rotation_line_start.y, rotation_line_end.x,
-             rotation_line_end.y, color);
+    if (debug) {
+        DrawCircleLines(ball->position.x, ball->position.y, ball->radius, RED);
+
+        // Ball ID in the center
+        char id_text[12];
+        snprintf(id_text, sizeof(id_text), "%u", ball->id);
+        const Font font = GetFontDefault();
+        const float font_size = 10;
+        const float spacing = 2.0f;
+        const Vector2 text_size =
+            MeasureTextEx(font, id_text, font_size, spacing);
+        const Vector2 origin = {text_size.x / 2.0f, text_size.y / 2.0f};
+        DrawTextPro(font, id_text, ball->position, origin,
+                    ball->rotation * RAD2DEG, font_size, spacing, RED);
+
+        // Rotation line
+        const Vector2 rotation_line_start = {
+            ball->position.x + 0.4f * ball->radius * cos(ball->rotation),
+            ball->position.y + 0.4f * ball->radius * sin(ball->rotation)};
+        const Vector2 rotation_line_end = {
+            ball->position.x + ball->radius * cos(ball->rotation),
+            ball->position.y + ball->radius * sin(ball->rotation)};
+        DrawLine(rotation_line_start.x, rotation_line_start.y,
+                 rotation_line_end.x, rotation_line_end.y, RED);
+    }
 }
 
 void render_shot(const ball_t *ball, const shot_t *shot)
@@ -103,7 +111,7 @@ void render_world(const app_t *app)
 
     render_table(app->world->table, app->debug);
     for (int i = 0; i < app->world->balls_length; i++) {
-        render_ball(app->world->balls[i], app->debug);
+        render_ball(app->world->balls[i], app->textures, app->debug);
     }
 
     if (app->shot != NULL) {

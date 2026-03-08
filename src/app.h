@@ -3,11 +3,13 @@
 
 #include "input.h"
 #include "physics/shot.h"
+#include "textures.h"
 #include "world.h"
 
 typedef struct app {
     world_t *world;
     input_t *input;
+    textures_t *textures;
 
     bool debug;
 
