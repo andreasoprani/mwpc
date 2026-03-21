@@ -40,8 +40,13 @@ void render_ball(const ball_t *ball, const textures_t *textures,
 
     Rectangle source = {0, 0, tex.width, tex.height};
     float diameter = ball->radius * 2;
-    Rectangle dest = {ball->position.x, ball->position.y, diameter, diameter};
-    Vector2 origin = {ball->radius, ball->radius};
+    float tex_ratio =
+        tex.width == tex.height ? 1 : (float) tex.width / (float) tex.height;
+    Rectangle dest = {ball->position.x, ball->position.y,
+                      diameter * MAX(tex_ratio, 1),
+                      diameter / MIN(tex_ratio, 1)};
+    Vector2 origin = {ball->radius * MAX(tex_ratio, 1),
+                      ball->radius / MIN(tex_ratio, 1)};
 
     DrawTexturePro(tex, source, dest, origin, ball->rotation * RAD2DEG,
                    (debug && ball->is_colliding) ? RED : WHITE);

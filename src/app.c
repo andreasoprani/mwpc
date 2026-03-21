@@ -53,12 +53,23 @@ world_t *world_setup(app_t *app)
     // TODO: fix positions
     world_add_ball_at_position(
         world, (Vector2) {GetScreenWidth() / 2, GetScreenHeight() * 1 / 4});
+
     world_add_ball_at_position(
         world, (Vector2) {GetScreenWidth() / 2 + BALL_DEFAULT_RADIUS,
                           GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 2});
     world_add_ball_at_position(
         world, (Vector2) {GetScreenWidth() / 2 - BALL_DEFAULT_RADIUS,
                           GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 2});
+
+    world_add_ball_at_position(
+        world, (Vector2) {GetScreenWidth() / 2 + BALL_DEFAULT_RADIUS * 2,
+                          GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4});
+    world_add_ball_at_position(
+        world, (Vector2) {GetScreenWidth() / 2,
+                          GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4});
+    world_add_ball_at_position(
+        world, (Vector2) {GetScreenWidth() / 2 - BALL_DEFAULT_RADIUS * 2,
+                          GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4});
 
     return world;
 }

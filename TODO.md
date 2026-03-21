@@ -7,7 +7,8 @@
 - [x] Ball number
 - [x] white ball control
 - [x] rendering actual balls (balatro planets?)
-- [ ] remove white stroke from planet textures
+- [x] remove white stroke from planet textures
+- [x] fix ringed planets (saturn & uranus)
 - [ ] controlling constants for debugging (UI sliders)
 - [ ] holes
 - [ ] game loop
