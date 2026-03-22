@@ -139,22 +139,11 @@ void world_add_ball(world_t *world, ball_t *ball)
     world->balls[world->balls_length++] = ball;
 }
 
-void world_add_ball_at_position(world_t *world, const Vector2 position)
+void world_add_ball_at_position(world_t *world, const Vector2 position,
+                                const planet_t planet)
 {
-    ball_t *ball = ball_create(world_next_ball_id(world), position,
-                               BALL_DEFAULT_RADIUS, BALL_DEFAULT_MASS);
+    ball_t *ball = ball_create(planet, position);
     world_add_ball(world, ball);
-}
-
-unsigned int world_next_ball_id(const world_t *world)
-{
-    unsigned int next_id = 0;
-    for (unsigned int i = 0; i < world->balls_length; i++) {
-        if (world->balls[i]->id >= next_id) {
-            next_id = world->balls[i]->id + 1;
-        }
-    };
-    return next_id;
 }
 
 void world_toggle_gravity(world_t *world)

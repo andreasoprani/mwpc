@@ -9,6 +9,8 @@
 - [x] rendering actual balls (balatro planets?)
 - [x] remove white stroke from planet textures
 - [x] fix ringed planets (saturn & uranus)
+- [x] real masses and relative sizes planets
+- [ ] auto-setup of starting positions
 - [ ] controlling constants for debugging (UI sliders)
 - [ ] holes
 - [ ] game loop

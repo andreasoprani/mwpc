@@ -2,12 +2,13 @@
 #define PHYSICS_BALL_H
 
 #include "constants.h"
+#include "planets.h"
 #include <raylib.h>
 #include <raymath.h>
 #include <stdbool.h>
 
 typedef struct ball {
-    unsigned int id;
+    planet_t planet;
 
     float radius;
 
@@ -35,8 +36,7 @@ typedef struct ball {
     bool is_colliding;
 } ball_t;
 
-ball_t *ball_create(const unsigned int id, const Vector2 position,
-                    const float radius, const float mass);
+ball_t *ball_create(const planet_t planet, const Vector2 position);
 
 int ball_is_static(const ball_t *ball);
 

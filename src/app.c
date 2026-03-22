@@ -1,5 +1,6 @@
 #include "app.h"
 #include "constants.h"
+#include "physics/ball.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "render.h"
@@ -48,28 +49,40 @@ world_t *world_setup(app_t *app)
     // 0, white ball
     // TODO: fix with real ball position
     world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2, GetScreenHeight() * 3 / 4});
+        world, (Vector2) {GetScreenWidth() / 2, GetScreenHeight() * 3 / 4},
+        EARTH);
 
     // TODO: fix positions
     world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2, GetScreenHeight() * 1 / 4});
+        world, (Vector2) {GetScreenWidth() / 2, GetScreenHeight() * 1 / 4},
+        MERCURY);
 
     world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2 + BALL_DEFAULT_RADIUS,
-                          GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 2});
+        world,
+        (Vector2) {GetScreenWidth() / 2 + BALL_DEFAULT_RADIUS,
+                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 2},
+        VENUS);
     world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2 - BALL_DEFAULT_RADIUS,
-                          GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 2});
+        world,
+        (Vector2) {GetScreenWidth() / 2 - BALL_DEFAULT_RADIUS,
+                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 2},
+        MARS);
 
     world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2 + BALL_DEFAULT_RADIUS * 2,
-                          GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4});
+        world,
+        (Vector2) {GetScreenWidth() / 2 + BALL_DEFAULT_RADIUS * 2,
+                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4},
+        JUPITER);
     world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2,
-                          GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4});
+        world,
+        (Vector2) {GetScreenWidth() / 2,
+                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4},
+        SATURN);
     world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2 - BALL_DEFAULT_RADIUS * 2,
-                          GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4});
+        world,
+        (Vector2) {GetScreenWidth() / 2 - BALL_DEFAULT_RADIUS * 2,
+                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4},
+        URANUS);
 
     return world;
 }

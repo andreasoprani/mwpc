@@ -1,36 +1,34 @@
 #include "ball.h"
 #include "constants.h"
+#include "planets.h"
 #include "raymath.h"
+#include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-ball_t *ball_create(const unsigned int id, const Vector2 position,
-                    const float radius, const float mass)
+ball_t *ball_create(const planet_t planet, const Vector2 position)
 {
     ball_t *ball = malloc(sizeof(ball_t));
 
-    ball->id = id;
+    ball->planet = planet;
 
-    ball->radius = radius;
+    ball->radius = get_planet_radius(planet);
+    ball->mass = get_planet_mass(planet);
+    ball->inverse_mass = (ball->mass > 0) ? 1.0f / ball->mass : 0.0f;
+
+    ball->inertia = 0.5 * ball->radius * ball->radius * ball->mass;
+    ball->inverse_inertia = (ball->inertia > 0) ? 1.0f / ball->inertia : 0.0f;
+
+    printf("Planet: %s, radius: %f, mass: %f\n", get_planet_name(ball->planet),
+           ball->radius, ball->mass);
 
     ball->position = position;
     ball->velocity = Vector2Zero();
     ball->acceleration = Vector2Zero();
 
-    ball->rotation = 0.f;
-    ball->angular_velocity = 0.f;
-    ball->angular_acceleration = 0.f;
-
-    ball->mass = mass >= 0 ? mass : 0;
-    if (mass > 0)
-        ball->inverse_mass = 1.f / ball->mass;
-    else
-        ball->inverse_mass = 0.f;
-
-    ball->inertia = 0.5 * radius * radius * mass;
-    if (ball->inertia > 0)
-        ball->inverse_inertia = 1.f / ball->inertia;
-    else
-        ball->inverse_inertia = 0.f;
+    ball->rotation = 0.0f;
+    ball->angular_velocity = 0.0f;
+    ball->angular_acceleration = 0.0f;
 
     ball->restitution = DEFAULT_BALL_RESTITUTION;
     ball->friction = DEFAULT_BALL_FRICTION;

@@ -36,7 +36,7 @@ void render_table(const table_t *table, const bool debug)
 void render_ball(const ball_t *ball, const textures_t *textures,
                  const bool debug)
 {
-    Texture2D tex = get_planet_texture(textures, ball->id);
+    Texture2D tex = get_planet_texture(textures, ball->planet);
 
     Rectangle source = {0, 0, tex.width, tex.height};
     float diameter = ball->radius * 2;
@@ -56,7 +56,7 @@ void render_ball(const ball_t *ball, const textures_t *textures,
 
         // Ball ID in the center
         char id_text[12];
-        snprintf(id_text, sizeof(id_text), "%u", ball->id);
+        snprintf(id_text, sizeof(id_text), "%u", ball->planet);
         const Font font = GetFontDefault();
         const float font_size = 10;
         const float spacing = 2.0f;
