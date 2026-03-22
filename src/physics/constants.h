@@ -1,8 +1,6 @@
 #ifndef PHYSICS_CONSTANTS_H
 #define PHYSICS_CONSTANTS_H
 
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
 
 #define CONTACT_BETA 0.6f

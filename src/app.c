@@ -5,6 +5,7 @@
 #include "raymath.h"
 #include "render.h"
 #include "textures.h"
+#include "world.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -46,43 +47,8 @@ world_t *world_setup(app_t *app)
 
     world_t *world = world_create(table);
 
-    // 0, white ball
-    // TODO: fix with real ball position
-    world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2, GetScreenHeight() * 3 / 4},
-        EARTH);
-
-    // TODO: fix positions
-    world_add_ball_at_position(
-        world, (Vector2) {GetScreenWidth() / 2, GetScreenHeight() * 1 / 4},
-        MERCURY);
-
-    world_add_ball_at_position(
-        world,
-        (Vector2) {GetScreenWidth() / 2 + BALL_DEFAULT_RADIUS,
-                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 2},
-        VENUS);
-    world_add_ball_at_position(
-        world,
-        (Vector2) {GetScreenWidth() / 2 - BALL_DEFAULT_RADIUS,
-                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 2},
-        MARS);
-
-    world_add_ball_at_position(
-        world,
-        (Vector2) {GetScreenWidth() / 2 + BALL_DEFAULT_RADIUS * 2,
-                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4},
-        JUPITER);
-    world_add_ball_at_position(
-        world,
-        (Vector2) {GetScreenWidth() / 2,
-                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4},
-        SATURN);
-    world_add_ball_at_position(
-        world,
-        (Vector2) {GetScreenWidth() / 2 - BALL_DEFAULT_RADIUS * 2,
-                   GetScreenHeight() * 1 / 4 - BALL_DEFAULT_RADIUS * 4},
-        URANUS);
+    static const planet_t other_planets[] = {MERCURY, VENUS, MARS};
+    world_place_all_balls(world, EARTH, other_planets, 3);
 
     return world;
 }

@@ -1,7 +1,9 @@
 #include "world.h"
+#include "constants.h"
 #include "physics/ball.h"
-#include "physics/constants.h"
 #include "physics/contact.h"
+#include "physics/planets.h"
+#include "physics/wall.h"
 #include "raylib.h"
 #include "raymath.h"
 #include <stdio.h>
@@ -139,11 +141,31 @@ void world_add_ball(world_t *world, ball_t *ball)
     world->balls[world->balls_length++] = ball;
 }
 
-void world_add_ball_at_position(world_t *world, const Vector2 position,
-                                const planet_t planet)
+void world_place_all_balls(world_t *world, const planet_t controlled_planet,
+                           const planet_t *other_planets,
+                           const unsigned int num_other_planets)
 {
-    ball_t *ball = ball_create(planet, position);
-    world_add_ball(world, ball);
+    ball_t *controlled_ball =
+        ball_create(controlled_planet,
+                    table_get_position(world->table, CONTROLLED_BALL_POSITION));
+    world_add_ball(world, controlled_ball);
+
+    if (!num_other_planets)
+        return;
+
+    const Vector2 apex_position = table_get_position(world->table, BALLS_APEX);
+    ball_t *apex_ball = ball_create(other_planets[0], apex_position);
+    world_add_ball(world, apex_ball);
+
+    for (unsigned int i = 1; i < num_other_planets; i++) {
+        planet_t planet = other_planets[i];
+        ball_t *last_ball = world->balls[i];
+        Vector2 position = {last_ball->position.x,
+                            last_ball->position.y + last_ball->radius +
+                                get_planet_radius(planet)};
+        ball_t *ball = ball_create(planet, position);
+        world_add_ball(world, ball);
+    }
 }
 
 void world_toggle_gravity(world_t *world)

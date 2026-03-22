@@ -24,4 +24,7 @@ table_t *table_create(const int num_walls,
                       const Vector2 *vertices // clockwise order
 );
 
+Vector2 table_get_position(const table_t *table,
+                           const Vector2 relative_position);
+
 #endif

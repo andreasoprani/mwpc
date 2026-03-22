@@ -167,15 +167,15 @@ void contact_solve(contact_t *contact, float dt)
     vec_copy(contact->cached_lambda, old_lambda, 2);
 
     vec_add(contact->cached_lambda, lambda, contact->cached_lambda, 2);
-    contact->cached_lambda[0] = MAX(contact->cached_lambda[0], 0.f);
+    contact->cached_lambda[0] = fmaxf(contact->cached_lambda[0], 0.f);
 
     const float friction = get_contact_friction(contact);
     if (friction > 0.f) {
         const float max_friction = contact->cached_lambda[0] * friction;
         contact->cached_lambda[1] =
-            MIN(contact->cached_lambda[1], max_friction);
+            fminf(contact->cached_lambda[1], max_friction);
         contact->cached_lambda[1] =
-            MAX(contact->cached_lambda[1], -max_friction);
+            fmaxf(contact->cached_lambda[1], -max_friction);
     }
 
     vec_sub(contact->cached_lambda, old_lambda, lambda, 2);
@@ -229,7 +229,7 @@ float get_contact_friction(contact_t *contact)
         second_friction = contact->other.ball->friction;
     else
         second_friction = contact->other.wall->friction;
-    return MAX(contact->ball->friction, second_friction);
+    return fmaxf(contact->ball->friction, second_friction);
 }
 
 float get_contact_restitution(contact_t *contact)
@@ -239,7 +239,7 @@ float get_contact_restitution(contact_t *contact)
         second_restitution = contact->other.ball->restitution;
     else
         second_restitution = contact->other.wall->restitution;
-    return MIN(contact->ball->restitution, second_restitution);
+    return fminf(contact->ball->restitution, second_restitution);
 }
 
 void get_contact_velocities_vector(contact_t *contact, float *velocities)
