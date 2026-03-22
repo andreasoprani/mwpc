@@ -9,5 +9,7 @@
 
 #define CONTROLLED_BALL_POSITION (Vector2){0.5f, 0.75f}
 #define BALLS_APEX (Vector2){0.5f, 0.25f}
+#define CONE_ANGLE 75.0f // degrees
+#define BALLS_GAP 1.0f
 
 #endif

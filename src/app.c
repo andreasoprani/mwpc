@@ -1,6 +1,7 @@
 #include "app.h"
 #include "constants.h"
 #include "physics/ball.h"
+#include "physics/planets.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "render.h"
@@ -47,8 +48,10 @@ world_t *world_setup(app_t *app)
 
     world_t *world = world_create(table);
 
-    static const planet_t other_planets[] = {MERCURY, VENUS, MARS};
-    world_place_all_balls(world, EARTH, other_planets, 3);
+    static const planet_t other_planets[] = {MERCURY, VENUS,  MARS,    JUPITER,
+                                             SATURN,  URANUS, NEPTUNE, PLUTO};
+    world_place_all_balls(world, EARTH, other_planets,
+                          sizeof(other_planets) / sizeof(planet_t));
 
     return world;
 }
