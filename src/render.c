@@ -16,15 +16,14 @@ void render_table(const table_t *table, const bool debug)
 {
     for (int i = 0; i < table->num_walls; i++) {
         wall_t *wall = &table->walls[i];
-        wall_t *next_wall = &table->walls[(i + 1) % table->num_walls];
         Color color = (debug && wall->is_colliding) ? DEBUG_COLLISION_WALL_COLOR
                                                     : DEBUG_NORMAL_WALL_COLOR;
-        DrawLine(wall->start.x, wall->start.y, next_wall->start.x,
-                 next_wall->start.y, color);
+        Vector2 end = Vector2Add(wall->start,
+                                 Vector2Scale(wall->direction, wall->length));
+        DrawLine(wall->start.x, wall->start.y, end.x, end.y, color);
 
         if (debug) {
-            Vector2 mid_point =
-                Vector2Lerp(wall->start, next_wall->start, 0.5f);
+            Vector2 mid_point = Vector2Lerp(wall->start, end, 0.5f);
             Vector2 outside_normal = wall_get_outside_normal(wall);
             DrawLine(mid_point.x, mid_point.y,
                      mid_point.x + outside_normal.x * 10,

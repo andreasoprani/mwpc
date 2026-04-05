@@ -4,7 +4,7 @@
 #include "matmath.h"
 #include "raylib.h"
 #include "raymath.h"
-#include "wall.h"
+#include "table.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -36,6 +36,11 @@ bool balls_are_colliding(ball_t *ball1, ball_t *ball2, contact_t *contact)
 bool ball_wall_are_colliding(ball_t *ball, wall_t *wall, contact_t *contact)
 {
     const Vector2 start_to_ball = Vector2Subtract(ball->position, wall->start);
+
+    const float projection = Vector2DotProduct(start_to_ball, wall->direction);
+    if (projection < 0.0f || projection > wall->length) {
+        return false;
+    }
 
     const Vector2 wall_closest_point = Vector2Add(
         wall->start,

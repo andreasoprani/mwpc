@@ -2,7 +2,7 @@
 #define PHYSICS_CONTACT_H
 
 #include "ball.h"
-#include "wall.h"
+#include "table.h"
 
 typedef enum {
     CONTACT_BALL_BALL,

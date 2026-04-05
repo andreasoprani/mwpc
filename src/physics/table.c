@@ -1,4 +1,4 @@
-#include "wall.h"
+#include "table.h"
 #include "constants.h"
 #include "raymath.h"
 #include <float.h>
@@ -21,6 +21,8 @@ table_t *table_create(const int num_walls, const Vector2 *vertices)
         table->walls[i].start = vertices[i];
         table->walls[i].direction = Vector2Normalize(
             Vector2Subtract(vertices[(i + 1) % num_walls], vertices[i]));
+        table->walls[i].length =
+            Vector2Distance(vertices[i], vertices[(i + 1) % num_walls]);
 
         table->walls[i].restitution = DEFAULT_WALL_RESTITUTION;
         table->walls[i].friction = DEFAULT_WALL_FRICTION;

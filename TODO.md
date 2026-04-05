@@ -10,9 +10,12 @@
 - [x] remove white stroke from planet textures
 - [x] fix ringed planets (saturn & uranus)
 - [x] real masses and relative sizes planets
-- [ ] auto-setup of starting positions
-- [ ] controlling constants for debugging (UI sliders)
+- [x] auto-setup of starting positions
+- [ ] walls -> polygons
 - [ ] holes
 - [ ] game loop
+- [ ] trajectory
+- [ ] different starting layouts
+- [ ] controlling constants for debugging (UI sliders)
 - [ ] render nice walls
 - [ ] render stars in the background

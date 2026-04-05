@@ -4,7 +4,7 @@
 #include "physics/ball.h"
 #include "physics/contact.h"
 #include "physics/planets.h"
-#include "physics/wall.h"
+#include "physics/table.h"
 
 typedef struct world {
     ball_t **balls;

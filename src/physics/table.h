@@ -1,11 +1,12 @@
-#ifndef PHYSICS_WALL_H
-#define PHYSICS_WALL_H
+#ifndef PHYSICS_TABLE_H
+#define PHYSICS_TABLE_H
 
 #include <raylib.h>
 
 typedef struct wall {
     Vector2 start;
     Vector2 direction;
+    float length;
 
     float restitution;
     float friction;
@@ -14,6 +15,11 @@ typedef struct wall {
 } wall_t;
 
 Vector2 wall_get_outside_normal(const wall_t *wall);
+
+typedef struct hole {
+    Vector2 position;
+    float radius;
+} hole_t;
 
 typedef struct table {
     wall_t *walls;
