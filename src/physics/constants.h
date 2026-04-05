@@ -21,6 +21,7 @@
 
 #define DEFAULT_WALL_RESTITUTION 0.9f // [0, 1]
 #define DEFAULT_WALL_FRICTION 0.7f    // [0, 1]
+#define WALL_THICKNESS 20.0f
 
 #define SHOT_IMPULSE_MULTIPLIER 500.0f // J
 #define SHOT_MAX_LENGTH 150.0f         // In pixels

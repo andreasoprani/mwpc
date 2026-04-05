@@ -5,6 +5,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "table.h"
+#include <float.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -35,50 +36,79 @@ bool balls_are_colliding(ball_t *ball1, ball_t *ball2, contact_t *contact)
 
 bool ball_wall_are_colliding(ball_t *ball, wall_t *wall, contact_t *contact)
 {
-    const Vector2 start_to_ball = Vector2Subtract(ball->position, wall->start);
+    bool is_outside = false;
+    Vector2 min_curr = {0}, min_next = {0};
+    float max_proj = -FLT_MAX;
 
-    const float projection = Vector2DotProduct(start_to_ball, wall->direction);
-    if (projection < 0.0f || projection > wall->length) {
-        return false;
+    for (int i = 0; i < wall->num_vertices; i++) {
+        Vector2 curr = wall->vertices[i];
+        Vector2 next = wall->vertices[(i + 1) % wall->num_vertices];
+        Vector2 edge = Vector2Subtract(next, curr);
+        // Outward normal for CW polygon: (edge.y, -edge.x)
+        Vector2 normal = Vector2Normalize((Vector2) {edge.y, -edge.x});
+
+        float proj =
+            Vector2DotProduct(Vector2Subtract(ball->position, curr), normal);
+        if (proj > 0) {
+            max_proj = proj;
+            min_curr = curr;
+            min_next = next;
+            is_outside = true;
+            break;
+        }
+        if (proj > max_proj) {
+            max_proj = proj;
+            min_curr = curr;
+            min_next = next;
+        }
     }
 
-    const Vector2 wall_closest_point = Vector2Add(
-        wall->start,
-        Vector2Scale(wall->direction,
-                     Vector2DotProduct(start_to_ball, wall->direction)));
-
-    const Vector2 outside_normal = wall_get_outside_normal(wall);
-
-    const Vector2 wall_closest_point_to_ball_distance =
-        Vector2Subtract(ball->position, wall_closest_point);
-
-    const bool inside_wall =
-        Vector2DotProduct(wall_closest_point_to_ball_distance,
-                          outside_normal) >= 0.f;
-
-    const bool colliding_wall =
-        Vector2LengthSqr(wall_closest_point_to_ball_distance) <=
-        ball->radius * ball->radius;
-
+    Vector2 edge = Vector2Subtract(min_next, min_curr);
+    // wall_normal points from polygon surface toward ball
+    Vector2 wall_normal;
     float depth;
-    if (inside_wall) {
-        depth =
-            Vector2Length(wall_closest_point_to_ball_distance) + ball->radius;
-    } else if (colliding_wall) {
-        depth =
-            ball->radius - Vector2Length(wall_closest_point_to_ball_distance);
+
+    if (is_outside) {
+        Vector2 curr_to_ball = Vector2Subtract(ball->position, min_curr);
+        if (Vector2DotProduct(curr_to_ball, edge) < 0.f) {
+            // Region A: nearest to start vertex
+            float dist = Vector2Length(curr_to_ball);
+            depth = ball->radius - dist;
+            if (depth < 0.f)
+                return false;
+            wall_normal = Vector2Normalize(curr_to_ball);
+        } else {
+            Vector2 next_to_ball = Vector2Subtract(ball->position, min_next);
+            if (Vector2DotProduct(next_to_ball, Vector2Negate(edge)) < 0.f) {
+                // Region B: nearest to end vertex
+                float dist = Vector2Length(next_to_ball);
+                depth = ball->radius - dist;
+                if (depth < 0.f)
+                    return false;
+                wall_normal = Vector2Normalize(next_to_ball);
+            } else {
+                // Region C: nearest to edge face
+                depth = ball->radius - max_proj;
+                if (depth < 0.f)
+                    return false;
+                wall_normal = Vector2Normalize((Vector2) {edge.y, -edge.x});
+            }
+        }
     } else {
-        return false;
+        // Ball center is inside polygon
+        depth = ball->radius - max_proj;
+        wall_normal = Vector2Normalize((Vector2) {edge.y, -edge.x});
     }
 
     contact->type = CONTACT_BALL_WALL;
     contact->ball = ball;
     contact->other.wall = wall;
-    contact->normal = outside_normal;
-    contact->start = wall_closest_point;
+    contact->normal = Vector2Negate(wall_normal);
+    contact->depth = depth;
+    contact->start =
+        Vector2Add(ball->position, Vector2Scale(contact->normal, ball->radius));
     contact->end =
         Vector2Add(contact->start, Vector2Scale(contact->normal, depth));
-    contact->depth = depth;
 
     init_contact_resolution_info(contact);
 

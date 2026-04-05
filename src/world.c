@@ -36,6 +36,8 @@ void world_destroy(world_t *world)
         free(world->balls[i]);
     free(world->balls);
     free(world->contacts);
+    for (int i = 0; i < world->table->num_walls; i++)
+        free(world->table->walls[i].vertices);
     free(world->table->walls);
     free(world->table);
     free(world);

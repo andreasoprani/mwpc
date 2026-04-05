@@ -18,16 +18,10 @@ void render_table(const table_t *table, const bool debug)
         wall_t *wall = &table->walls[i];
         Color color = (debug && wall->is_colliding) ? DEBUG_COLLISION_WALL_COLOR
                                                     : DEBUG_NORMAL_WALL_COLOR;
-        Vector2 end = Vector2Add(wall->start,
-                                 Vector2Scale(wall->direction, wall->length));
-        DrawLine(wall->start.x, wall->start.y, end.x, end.y, color);
-
-        if (debug) {
-            Vector2 mid_point = Vector2Lerp(wall->start, end, 0.5f);
-            Vector2 outside_normal = wall_get_outside_normal(wall);
-            DrawLine(mid_point.x, mid_point.y,
-                     mid_point.x + outside_normal.x * 10,
-                     mid_point.y + outside_normal.y * 10, color);
+        for (int v = 0; v < wall->num_vertices; v++) {
+            Vector2 a = wall->vertices[v];
+            Vector2 b = wall->vertices[(v + 1) % wall->num_vertices];
+            DrawLine((int)a.x, (int)a.y, (int)b.x, (int)b.y, color);
         }
     }
 }

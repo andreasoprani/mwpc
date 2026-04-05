@@ -1,34 +1,46 @@
 #include "table.h"
 #include "constants.h"
 #include "raymath.h"
-#include <float.h>
-#include <limits.h>
-#include <math.h>
 #include <stdlib.h>
 
-Vector2 wall_get_outside_normal(const wall_t *wall)
-{
-    Vector2 normal = {wall->direction.y, -wall->direction.x};
-    return normal;
-}
-
-table_t *table_create(const int num_walls, const Vector2 *vertices)
+table_t *table_create(Vector2 origin, float width, float height)
 {
     table_t *table = malloc(sizeof(table_t));
+    table->origin = origin;
+    table->width = width;
+    table->height = height;
+
+    const Vector2 vertices[4] = {
+        {origin.x, origin.y},
+        {origin.x + width, origin.y},
+        {origin.x + width, origin.y + height},
+        {origin.x, origin.y + height},
+    };
+
+    const int num_walls = 4;
     table->num_walls = num_walls;
     table->walls = malloc(num_walls * sizeof(wall_t));
+
     for (int i = 0; i < num_walls; i++) {
-        table->walls[i].start = vertices[i];
-        table->walls[i].direction = Vector2Normalize(
-            Vector2Subtract(vertices[(i + 1) % num_walls], vertices[i]));
-        table->walls[i].length =
-            Vector2Distance(vertices[i], vertices[(i + 1) % num_walls]);
+        Vector2 v0 = vertices[i];
+        Vector2 v1 = vertices[(i + 1) % num_walls];
 
-        table->walls[i].restitution = DEFAULT_WALL_RESTITUTION;
-        table->walls[i].friction = DEFAULT_WALL_FRICTION;
+        Vector2 edge_dir = Vector2Normalize(Vector2Subtract(v1, v0));
+        Vector2 outward = (Vector2) {edge_dir.y, -edge_dir.x};
 
-        // Debug
-        table->walls[i].is_colliding = false;
+        wall_t *wall = &table->walls[i];
+        wall->num_vertices = 4;
+        wall->vertices = malloc(4 * sizeof(Vector2));
+        wall->vertices[0] =
+            Vector2Add(v0, Vector2Scale(outward, WALL_THICKNESS));
+        wall->vertices[1] =
+            Vector2Add(v1, Vector2Scale(outward, WALL_THICKNESS));
+        wall->vertices[2] = v1;
+        wall->vertices[3] = v0;
+
+        wall->restitution = DEFAULT_WALL_RESTITUTION;
+        wall->friction = DEFAULT_WALL_FRICTION;
+        wall->is_colliding = false;
     }
 
     return table;
@@ -37,18 +49,6 @@ table_t *table_create(const int num_walls, const Vector2 *vertices)
 Vector2 table_get_position(const table_t *table,
                            const Vector2 relative_position)
 {
-    float min_x = FLT_MAX;
-    float max_x = 0.0f;
-    float min_y = FLT_MAX;
-    float max_y = 0.0f;
-
-    for (int i = 0; i < table->num_walls; i++) {
-        min_x = fminf(min_x, table->walls[i].start.x);
-        max_x = fmaxf(max_x, table->walls[i].start.x);
-        min_y = fminf(min_y, table->walls[i].start.y);
-        max_y = fmaxf(max_y, table->walls[i].start.y);
-    }
-
-    return (Vector2) {min_x + relative_position.x * (max_x - min_x),
-                      min_y + relative_position.y * (max_y - min_y)};
+    return (Vector2) {table->origin.x + relative_position.x * table->width,
+                      table->origin.y + relative_position.y * table->height};
 }
