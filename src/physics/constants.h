@@ -2,6 +2,7 @@
 #define PHYSICS_CONSTANTS_H
 
 #define CROSS(a, b) ((a).x * (b).y - (a).y * (b).x)
+#define ARR_LEN(arr) (sizeof(arr) / sizeof(*arr))
 
 #define CONTACT_BETA 0.6f
 #define CONTACT_SOLVE_ITERATIONS 10
@@ -18,6 +19,8 @@
 
 #define MASS_SQUASH_POW_EXP 0.01f
 #define RADIUS_SQUASH_POW_EXP 0.4f
+
+#define DEFAULT_HOLE_RADIUS 20.0f
 
 #define DEFAULT_WALL_RESTITUTION 0.9f // [0, 1]
 #define DEFAULT_WALL_FRICTION 0.7f    // [0, 1]

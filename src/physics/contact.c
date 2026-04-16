@@ -40,9 +40,9 @@ bool ball_wall_are_colliding(ball_t *ball, wall_t *wall, contact_t *contact)
     Vector2 min_curr = {0}, min_next = {0};
     float max_proj = -FLT_MAX;
 
-    for (int i = 0; i < wall->num_vertices; i++) {
+    for (int i = 0; i < ARR_LEN(wall->vertices); i++) {
         Vector2 curr = wall->vertices[i];
-        Vector2 next = wall->vertices[(i + 1) % wall->num_vertices];
+        Vector2 next = wall->vertices[(i + 1) % ARR_LEN(wall->vertices)];
         Vector2 edge = Vector2Subtract(next, curr);
         // Outward normal for CW polygon: (edge.y, -edge.x)
         Vector2 normal = Vector2Normalize((Vector2) {edge.y, -edge.x});

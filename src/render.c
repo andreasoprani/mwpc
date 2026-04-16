@@ -14,14 +14,22 @@
 
 void render_table(const table_t *table, const bool debug)
 {
-    for (int i = 0; i < table->num_walls; i++) {
-        wall_t *wall = &table->walls[i];
-        Color color = (debug && wall->is_colliding) ? DEBUG_COLLISION_WALL_COLOR
-                                                    : DEBUG_NORMAL_WALL_COLOR;
-        for (int v = 0; v < wall->num_vertices; v++) {
-            Vector2 a = wall->vertices[v];
-            Vector2 b = wall->vertices[(v + 1) % wall->num_vertices];
-            DrawLine((int)a.x, (int)a.y, (int)b.x, (int)b.y, color);
+    for (int i = 0; i < ARR_LEN(table->walls); i++) {
+        wall_t wall = table->walls[i];
+        Color color = (debug && wall.is_colliding) ? DEBUG_COLLISION_WALL_COLOR
+                                                   : DEBUG_NORMAL_WALL_COLOR;
+        for (int v = 0; v < ARR_LEN(wall.vertices); v++) {
+            Vector2 a = wall.vertices[v];
+            Vector2 b = wall.vertices[(v + 1) % ARR_LEN(wall.vertices)];
+            DrawLine((int) a.x, (int) a.y, (int) b.x, (int) b.y, color);
+        }
+
+        if (debug) {
+            for (int h = 0; h < ARR_LEN(table->holes); h++) {
+                hole_t hole = table->holes[h];
+                DrawCircleLines((int) hole.position.x, (int) hole.position.y,
+                                (int) hole.radius, color);
+            }
         }
     }
 }

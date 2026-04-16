@@ -19,7 +19,7 @@ world_t *world_create(table_t *table)
     world->balls_length = 0;
 
     int contacts_capacity = balls_capacity * (balls_capacity - 1) +
-                            balls_capacity * table->num_walls;
+                            balls_capacity * ARR_LEN(table->walls);
     world->contacts = malloc(contacts_capacity * sizeof(contact_t));
     world->contacts_capacity = contacts_capacity;
     world->contacts_length = 0;
@@ -36,7 +36,7 @@ void world_destroy(world_t *world)
         free(world->balls[i]);
     free(world->balls);
     free(world->contacts);
-    for (int i = 0; i < world->table->num_walls; i++)
+    for (int i = 0; i < ARR_LEN(world->table->walls); i++)
         free(world->table->walls[i].vertices);
     free(world->table->walls);
     free(world->table);
@@ -77,7 +77,7 @@ void world_update(world_t *world, const float dt)
     for (int i = 0; i < world->balls_length; i++)
         world->balls[i]->is_colliding = false;
 
-    for (int i = 0; i < world->table->num_walls; i++)
+    for (int i = 0; i < ARR_LEN(world->table->walls); i++)
         (&world->table->walls[i])->is_colliding = false;
 
     for (int i = 0; i < world->balls_length - 1; i++) {
@@ -97,7 +97,7 @@ void world_update(world_t *world, const float dt)
 
     for (int i = 0; i < world->balls_length; i++) {
         ball_t *ball = world->balls[i];
-        for (int j = 0; j < world->table->num_walls; j++) {
+        for (int j = 0; j < ARR_LEN(world->table->walls); j++) {
             wall_t *wall = &world->table->walls[j];
 
             contact_t *contact = &world->contacts[world->contacts_length];
@@ -143,7 +143,7 @@ void world_add_ball(world_t *world, ball_t *ball)
 
         world->contacts_capacity =
             world->balls_capacity * (world->balls_capacity - 1) +
-            world->balls_capacity * world->table->num_walls;
+            world->balls_capacity * ARR_LEN(world->table->walls);
         world->contacts = (contact_t *) realloc(
             world->contacts, world->contacts_capacity * sizeof(contact_t));
     }

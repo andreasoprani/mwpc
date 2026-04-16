@@ -4,8 +4,8 @@
 #include <raylib.h>
 
 typedef struct wall {
-    Vector2 *vertices; // world-space, clockwise order
-    int num_vertices;
+    // TODO: better shape?
+    Vector2 vertices[6]; // world-space, clockwise order
 
     float restitution;
     float friction;
@@ -19,8 +19,9 @@ typedef struct hole {
 } hole_t;
 
 typedef struct table {
-    wall_t *walls;
-    int num_walls;
+    wall_t walls[6];
+
+    hole_t holes[6]; // clock-wise from top-left
 
     Vector2 origin; // top-left corner of the playing area
     float width;
