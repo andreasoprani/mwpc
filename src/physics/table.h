@@ -4,8 +4,7 @@
 #include <raylib.h>
 
 typedef struct wall {
-    // TODO: better shape?
-    Vector2 vertices[6]; // world-space, clockwise order
+    Vector2 vertices[4]; // world-space, clockwise order
 
     float restitution;
     float friction;

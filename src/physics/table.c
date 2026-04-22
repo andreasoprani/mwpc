@@ -1,6 +1,7 @@
 #include "table.h"
 #include "constants.h"
 #include "raymath.h"
+#include <math.h>
 #include <stdlib.h>
 
 table_t *table_create(Vector2 origin, float width, float height)
@@ -10,7 +11,8 @@ table_t *table_create(Vector2 origin, float width, float height)
     table->width = width;
     table->height = height;
 
-    const Vector2 hole_positions[6] = {
+    // Table boundary anchor points (corners and mid-edges)
+    const Vector2 anchors[6] = {
         {origin.x, origin.y},                      // TL
         {origin.x + width, origin.y},              // TR
         {origin.x + width, origin.y + height / 2}, // MR
@@ -19,38 +21,70 @@ table_t *table_create(Vector2 origin, float width, float height)
         {origin.x, origin.y + height / 2},         // ML
     };
 
-    for (int i = 0; i < ARR_LEN(hole_positions); i++) {
+    // Per-anchor outward normal = average of the two adjacent wall normals
+    Vector2 anchor_outward[6] = {0};
+    for (int i = 0; i < 6; i++) {
+        const Vector2 dir =
+            Vector2Normalize(Vector2Subtract(anchors[(i + 1) % 6], anchors[i]));
+        const Vector2 wall_n = {dir.y, -dir.x};
+        anchor_outward[i] = Vector2Add(anchor_outward[i], wall_n);
+        anchor_outward[(i + 1) % 6] =
+            Vector2Add(anchor_outward[(i + 1) % 6], wall_n);
+    }
+    for (int i = 0; i < 6; i++)
+        anchor_outward[i] = Vector2Normalize(anchor_outward[i]);
+
+    // Holes pushed outward so their centers sit outside the table edge.
+    // Side holes get more offset since their rail geometry exposes a
+    // half-circle inside the table vs only a quarter-circle at corners.
+    for (int i = 0; i < 6; i++) {
+        const bool is_side = (i == 2 || i == 5);
+        const float offset = is_side ? HOLE_OFFSET_SIDE : HOLE_OFFSET_CORNER;
         table->holes[i] = (hole_t) {
-            .position = hole_positions[i],
-            .radius = DEFAULT_HOLE_RADIUS,
+            .position =
+                Vector2Add(anchors[i], Vector2Scale(anchor_outward[i], offset)),
+            .radius = HOLE_RADIUS,
         };
     }
 
+    // JAW_FLARE_ANGLE must satisfy tan(angle) < HOLE_MOUTH_SIDE /
+    // WALL_THICKNESS so that adjacent collinear walls at side holes don't
+    // overlap.
+    const float flare = tanf(JAW_FLARE_ANGLE * DEG2RAD);
     for (int i = 0; i < ARR_LEN(table->walls); i++) {
-        const hole_t h0 = table->holes[i];
-        const hole_t h1 = table->holes[(i + 1) % 6];
+        const int i1 = (i + 1) % 6;
+        const bool h0_side = (i == 2 || i == 5);
+        const bool h1_side = (i1 == 2 || i1 == 5);
 
-        const Vector2 edge_dir =
-            Vector2Normalize(Vector2Subtract(h1.position, h0.position));
-        const Vector2 outward = (Vector2) {edge_dir.y, -edge_dir.x};
+        const Vector2 dir =
+            Vector2Normalize(Vector2Subtract(anchors[i1], anchors[i]));
+        const Vector2 normal = {dir.y, -dir.x};
 
+        const float mouth0 = h0_side ? HOLE_MOUTH_SIDE : HOLE_MOUTH_CORNER;
+        const float mouth1 = h1_side ? HOLE_MOUTH_SIDE : HOLE_MOUTH_CORNER;
+        const float flare0 = flare;
+        const float flare1 = flare;
+
+        // Inner face lies on the anchor edge line, cut back from each anchor
+        const Vector2 v_inner0 =
+            Vector2Add(anchors[i], Vector2Scale(dir, mouth0));
+        const Vector2 v_inner1 =
+            Vector2Add(anchors[i1], Vector2Scale(dir, -mouth1));
+
+        // Outer face is wider: flared away from each end's anchor
+        const Vector2 v_outer0 = Vector2Add(
+            Vector2Add(v_inner0, Vector2Scale(normal, WALL_THICKNESS)),
+            Vector2Scale(dir, -WALL_THICKNESS * flare0));
+        const Vector2 v_outer1 = Vector2Add(
+            Vector2Add(v_inner1, Vector2Scale(normal, WALL_THICKNESS)),
+            Vector2Scale(dir, WALL_THICKNESS * flare1));
+
+        // Clockwise: outer0 → outer1 → inner1 → inner0
         table->walls[i] = (wall_t) {
-            .vertices[0] = Vector2Add(
-                Vector2Add(h0.position, Vector2Scale(outward, h0.radius)),
-                Vector2Scale(edge_dir, h0.radius)),
-            .vertices[1] = Vector2Add(
-                Vector2Add(h1.position, Vector2Scale(outward, h1.radius)),
-                Vector2Scale(edge_dir, -h1.radius)),
-            .vertices[2] =
-                Vector2Add(h1.position, Vector2Scale(edge_dir, -h1.radius)),
-            .vertices[3] = Vector2Add(
-                Vector2Add(h1.position, Vector2Scale(edge_dir, -2 * h1.radius)),
-                Vector2Scale(outward, -h1.radius)),
-            .vertices[4] = Vector2Add(
-                Vector2Add(h0.position, Vector2Scale(edge_dir, 2 * h0.radius)),
-                Vector2Scale(outward, -h0.radius)),
-            .vertices[5] =
-                Vector2Add(h0.position, Vector2Scale(edge_dir, h0.radius)),
+            .vertices[0] = v_outer0,
+            .vertices[1] = v_outer1,
+            .vertices[2] = v_inner1,
+            .vertices[3] = v_inner0,
             .restitution = DEFAULT_WALL_RESTITUTION,
             .friction = DEFAULT_WALL_FRICTION,
             .is_colliding = false,
