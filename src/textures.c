@@ -2,10 +2,8 @@
 #include "raylib.h"
 #include <stdlib.h>
 
-textures_t *textures_setup()
+void textures_setup(textures_t *textures)
 {
-    textures_t *textures = malloc(sizeof(textures_t));
-
     textures->planets[0] = LoadTexture("textures/mercury.png");
     textures->planets[1] = LoadTexture("textures/venus.png");
     textures->planets[2] = LoadTexture("textures/earth.png");
@@ -17,8 +15,6 @@ textures_t *textures_setup()
     textures->planets[8] = LoadTexture("textures/pluto.png");
 
     textures->hole = LoadTexture("textures/black-hole.png");
-
-    return textures;
 }
 
 Texture2D get_planet_texture(const textures_t *textures, const planet_t planet)

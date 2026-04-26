@@ -20,8 +20,8 @@ typedef struct world {
     bool gravity_enabled;
 } world_t;
 
-world_t *world_create(Vector2 table_origin, float table_width,
-                      float table_height);
+void world_setup(world_t *world, Vector2 table_origin, float table_width,
+                 float table_height);
 void world_destroy(world_t *world);
 void world_update(world_t *world, const float dt);
 

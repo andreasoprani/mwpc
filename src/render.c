@@ -111,10 +111,10 @@ void render_contact(const contact_t *contact)
              contact->start.y + contact->normal.y * contact->depth, RED);
 }
 
-void render_debug_info(const world_t *world, const input_t *input)
+void render_debug_info(const app_t *app)
 {
-    for (int i = 0; i < world->contacts_count; i++) {
-        render_contact(&world->contacts[i]);
+    for (int i = 0; i < app->world.contacts_count; i++) {
+        render_contact(&app->world.contacts[i]);
     }
 
     DrawText("Debug Mode ON", 5, GetScreenHeight() - 25, 20, RED);
@@ -125,17 +125,17 @@ void render_world(const app_t *app)
     BeginDrawing();
     ClearBackground(BLACK);
 
-    render_table(app->world->table, app->textures, app->debug);
-    for (int i = 0; i < app->world->balls_count; i++) {
-        render_ball(&app->world->balls[i], app->textures, app->debug);
+    render_table(app->world.table, &app->textures, app->debug);
+    for (int i = 0; i < app->world.balls_count; i++) {
+        render_ball(&app->world.balls[i], &app->textures, app->debug);
     }
 
     if (app->shot != NULL) {
-        render_shot(&app->world->balls[0], app->shot);
+        render_shot(&app->world.balls[0], app->shot);
     }
 
     if (app->debug) {
-        render_debug_info(app->world, app->input);
+        render_debug_info(app);
     }
 
     EndDrawing();

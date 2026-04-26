@@ -14,7 +14,6 @@ typedef struct input {
     bool key_space_pressed;
 } input_t;
 
-input_t *input_create();
 void input_reset(input_t *input);
 void input_update(input_t *input);
 

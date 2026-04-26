@@ -12,7 +12,7 @@ typedef struct textures {
     Texture2D hole;
 } textures_t;
 
-textures_t *textures_setup();
+void textures_setup(textures_t *textures);
 
 Texture2D get_planet_texture(const textures_t *textures, const planet_t planet);
 

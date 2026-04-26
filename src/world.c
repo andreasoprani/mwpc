@@ -12,26 +12,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-world_t *world_create(Vector2 table_origin, float table_width,
-                      float table_height)
+void world_setup(world_t *world, Vector2 table_origin, float table_width,
+                 float table_height)
 {
-    world_t *world = malloc(sizeof(world_t));
     world->balls_count = 0;
     world->contacts_count = 0;
 
     world->gravity_enabled = false;
 
     table_setup(&world->table, table_origin, table_width, table_height);
-
-    return world;
 };
-
-void world_destroy(world_t *world)
-{
-    free(world->balls);
-    free(world->contacts);
-    free(world);
-}
 
 void world_update(world_t *world, const float dt)
 {

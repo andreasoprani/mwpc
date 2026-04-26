@@ -3,13 +3,6 @@
 #include "raymath.h"
 #include <stdlib.h>
 
-input_t *input_create()
-{
-    input_t *input = malloc(sizeof(input_t));
-    input_reset(input);
-    return input;
-}
-
 void input_reset(input_t *input)
 {
     input->mouse_position = Vector2Zero();
