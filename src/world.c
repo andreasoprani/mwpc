@@ -133,18 +133,23 @@ void world_update(world_t *world, const float dt)
         hole->rotation += HOLE_ROTATION_SPEED;
     }
 
+    unsigned int to_remove = 0;
     for (int b = 0; b < world->balls_length; b++) {
         ball_t *ball = world->balls[b];
         for (int h = 0; h < ARR_LEN(world->table->holes); h++) {
             hole_t *hole = &world->table->holes[h];
             if (Vector2Distance(ball->position, hole->position) <
                 hole->radius) {
-                world_remove_ball(world, ball);
+                to_remove |= PLANET_BIT(ball->planet);
             }
         }
     }
 
-    // TODO: check win/game over condition
+    for (int p = 0; p <= PLUTO; p++) {
+        if (to_remove & PLANET_BIT(p)) {
+            world_remove_ball(world, p);
+        }
+    }
 }
 
 void world_toggle_gravity(world_t *world)
@@ -169,17 +174,19 @@ void world_add_ball(world_t *world, ball_t *ball)
     world->balls[world->balls_length++] = ball;
 }
 
-void world_remove_ball(world_t *world, ball_t *ball)
+void world_remove_ball(world_t *world, planet_t planet)
 {
     int ball_index = 0;
     for (int i = 0; i < world->balls_length; i++) {
-        if (world->balls[i]->planet == ball->planet) {
+        if (world->balls[i]->planet == planet) {
             ball_index = i;
             break;
         }
     }
 
-    world->balls[ball_index] = world->balls[world->balls_length - 1];
+    if (ball_index < world->balls_length - 1) {
+        world->balls[ball_index] = world->balls[world->balls_length - 1];
+    }
     world->balls_length -= 1;
 }
 

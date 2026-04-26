@@ -13,6 +13,8 @@ typedef enum {
     PLUTO
 } planet_t;
 
+#define PLANET_BIT(p) (1u << (p))
+
 const char *get_planet_name(const planet_t planet);
 float get_planet_mass(const planet_t planet);
 float get_planet_radius(const planet_t planet);
