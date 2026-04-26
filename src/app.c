@@ -102,7 +102,7 @@ void app_apply_shot(app_t *app)
     if (app->shot == NULL)
         return;
 
-    ball_t *ball = app->world->balls[0];
+    ball_t *ball = &app->world->balls[0];
 
     Vector2 shot_vec = shot_vector(app->shot);
 

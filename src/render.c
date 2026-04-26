@@ -113,7 +113,7 @@ void render_contact(const contact_t *contact)
 
 void render_debug_info(const world_t *world, const input_t *input)
 {
-    for (int i = 0; i < world->contacts_length; i++) {
+    for (int i = 0; i < world->contacts_count; i++) {
         render_contact(&world->contacts[i]);
     }
 
@@ -126,12 +126,12 @@ void render_world(const app_t *app)
     ClearBackground(BLACK);
 
     render_table(app->world->table, app->textures, app->debug);
-    for (int i = 0; i < app->world->balls_length; i++) {
-        render_ball(app->world->balls[i], app->textures, app->debug);
+    for (int i = 0; i < app->world->balls_count; i++) {
+        render_ball(&app->world->balls[i], app->textures, app->debug);
     }
 
     if (app->shot != NULL) {
-        render_shot(app->world->balls[0], app->shot);
+        render_shot(&app->world->balls[0], app->shot);
     }
 
     if (app->debug) {

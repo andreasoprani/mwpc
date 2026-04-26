@@ -18,8 +18,10 @@ typedef struct hole {
     float rotation;
 } hole_t;
 
+#define NUM_WALLS 6
+
 typedef struct table {
-    wall_t walls[6];
+    wall_t walls[NUM_WALLS];
 
     hole_t holes[6]; // clock-wise from top-left
 

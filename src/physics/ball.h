@@ -36,7 +36,7 @@ typedef struct ball {
     bool is_colliding;
 } ball_t;
 
-ball_t *ball_create(const planet_t planet, const Vector2 position);
+ball_t ball_create(const planet_t planet, const Vector2 position);
 
 int ball_is_static(const ball_t *ball);
 

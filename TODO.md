@@ -14,6 +14,7 @@
 - [x] walls -> polygons
 - [x] holes
 - [ ] game loop
+- [ ] build for web
 - [ ] trajectories
 - [ ] different starting layouts
 - [ ] render stars in the background

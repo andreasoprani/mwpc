@@ -10,7 +10,8 @@ typedef enum {
     SATURN,
     URANUS,
     NEPTUNE,
-    PLUTO
+    PLUTO,
+    NUM_PLANETS
 } planet_t;
 
 #define PLANET_BIT(p) (1u << (p))

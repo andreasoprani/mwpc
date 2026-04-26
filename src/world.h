@@ -5,17 +5,17 @@
 #include "physics/contact.h"
 #include "physics/planets.h"
 #include "physics/table.h"
+#include "textures.h"
 
 typedef struct world {
-    ball_t **balls;
-    unsigned int balls_capacity;
-    unsigned int balls_length;
+    ball_t balls[NUM_PLANETS];
+    unsigned int balls_count;
 
     table_t *table;
 
-    contact_t *contacts;
-    unsigned int contacts_capacity;
-    unsigned int contacts_length;
+    contact_t
+        contacts[NUM_PLANETS * (NUM_PLANETS - 1) + NUM_PLANETS * NUM_WALLS];
+    unsigned int contacts_count;
 
     bool gravity_enabled;
 } world_t;
@@ -24,8 +24,6 @@ world_t *world_create(table_t *table);
 void world_destroy(world_t *world);
 void world_update(world_t *world, const float dt);
 
-void world_add_ball(world_t *world, ball_t *ball);
-void world_remove_ball(world_t *world, planet_t planet);
 void world_place_all_balls(world_t *world, const planet_t controlled_planet,
                            const planet_t *other_planets,
                            const unsigned int num_other_planets);

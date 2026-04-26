@@ -6,37 +6,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-ball_t *ball_create(const planet_t planet, const Vector2 position)
+ball_t ball_create(const planet_t planet, const Vector2 position)
 {
-    ball_t *ball = malloc(sizeof(ball_t));
+    const float mass = get_planet_mass(planet);
+    const float radius = get_planet_radius(planet);
+    const float inertia = 0.5 * radius * radius * mass;
 
-    ball->planet = planet;
+    printf("Planet: %s, radius: %f, mass: %f\n", get_planet_name(planet),
+           radius, mass);
+    return (ball_t) {
+        .planet = planet,
 
-    ball->radius = get_planet_radius(planet);
-    ball->mass = get_planet_mass(planet);
-    ball->inverse_mass = (ball->mass > 0) ? 1.0f / ball->mass : 0.0f;
+        .radius = radius,
+        .mass = mass,
+        .inverse_mass = (mass > 0) ? 1.0f / mass : 0.0f,
 
-    ball->inertia = 0.5 * ball->radius * ball->radius * ball->mass;
-    ball->inverse_inertia = (ball->inertia > 0) ? 1.0f / ball->inertia : 0.0f;
+        .inertia = 0.5 * radius * radius * mass,
+        .inverse_inertia = (inertia > 0) ? 1.0f / inertia : 0.0f,
 
-    printf("Planet: %s, radius: %f, mass: %f\n", get_planet_name(ball->planet),
-           ball->radius, ball->mass);
+        .position = position,
+        .velocity = Vector2Zero(),
+        .acceleration = Vector2Zero(),
 
-    ball->position = position;
-    ball->velocity = Vector2Zero();
-    ball->acceleration = Vector2Zero();
+        .rotation = 0.0f,
+        .angular_velocity = 0.0f,
+        .angular_acceleration = 0.0f,
 
-    ball->rotation = 0.0f;
-    ball->angular_velocity = 0.0f;
-    ball->angular_acceleration = 0.0f;
+        .restitution = BALL_RESTITUTION,
+        .friction = BALL_FRICTION,
 
-    ball->restitution = BALL_RESTITUTION;
-    ball->friction = BALL_FRICTION;
-
-    // Debug
-    ball->is_colliding = false;
-
-    return ball;
+        // Debug
+        .is_colliding = false,
+    };
 }
 
 int ball_is_static(const ball_t *ball)

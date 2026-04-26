@@ -23,8 +23,6 @@ textures_t *textures_setup()
 
 Texture2D get_planet_texture(const textures_t *textures, const planet_t planet)
 {
-    // TODO: probably need to change the whole NUM_PLANETS logic to avoid this
-    // wrap around and just never have more balls than sprites
     switch (planet) {
     case MERCURY:
         return textures->planets[0];
@@ -44,5 +42,7 @@ Texture2D get_planet_texture(const textures_t *textures, const planet_t planet)
         return textures->planets[7];
     case PLUTO:
         return textures->planets[8];
+    case NUM_PLANETS: // Just to satisfy the compiler
+        return textures->planets[NUM_PLANETS - 1];
     }
 }
