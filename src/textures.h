@@ -9,6 +9,7 @@
 
 typedef struct textures {
     Texture2D planets[NUM_PLANETS];
+    Texture2D hole;
 } textures_t;
 
 textures_t *textures_setup();

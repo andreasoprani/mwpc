@@ -21,17 +21,20 @@
 #define RADIUS_SQUASH_POW_EXP 0.15f
 
 #define HOLE_RADIUS 30.0f
-#define HOLE_OFFSET_CORNER                                                     \
-    0.0f // corner holes sit on the anchor (diagonal outward)
-#define HOLE_OFFSET_SIDE                                                       \
-    (HOLE_RADIUS * 0.5f) // side holes pushed further out so less of them is
-                         // exposed inside the table
-#define HOLE_MOUTH_CORNER                                                      \
-    (HOLE_RADIUS * 1.0f) // wall cutback from table corner along wall
-#define HOLE_MOUTH_SIDE                                                        \
-    (HOLE_RADIUS * 1.0f) // wall cutback from table mid-edge along wall
-#define JAW_FLARE_ANGLE                                                        \
-    40.0f // degrees; must satisfy tan(angle) < HOLE_MOUTH_SIDE/WALL_THICKNESS
+#define HOLE_ROTATION_SPEED 0.02f
+
+// corner holes sit on the anchor (diagonal outward)
+#define HOLE_OFFSET_CORNER 0.0f
+// side holes pushed further out so less of them is
+#define HOLE_OFFSET_SIDE (HOLE_RADIUS * 0.5f)
+
+// exposed inside the table
+// wall cutback from table corner along wall
+#define HOLE_MOUTH_CORNER (HOLE_RADIUS * 1.0f)
+// wall cutback from table mid-edge along wall
+#define HOLE_MOUTH_SIDE (HOLE_RADIUS * 1.3f)
+// degrees; must satisfy tan(angle) < HOLE_MOUTH_SIDE/WALL_THICKNESS
+#define JAW_FLARE_ANGLE 40.0f
 
 #define WALL_RESTITUTION 0.9f // [0, 1]
 #define WALL_FRICTION 0.7f    // [0, 1]

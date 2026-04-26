@@ -12,7 +12,7 @@
 - [x] real masses and relative sizes planets
 - [x] auto-setup of starting positions
 - [x] walls -> polygons
-- [ ] holes
+- [x] holes
 - [ ] game loop
 - [ ] trajectories
 - [ ] different starting layouts

@@ -15,6 +15,7 @@ typedef struct wall {
 typedef struct hole {
     Vector2 position;
     float radius;
+    float rotation;
 } hole_t;
 
 typedef struct table {

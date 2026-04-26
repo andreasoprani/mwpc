@@ -1,3 +1,4 @@
+#include "physics/table.h"
 #include "textures.h"
 #define RAYGUI_IMPLEMENTATION
 
@@ -12,8 +13,36 @@
 #define DEBUG_COLLISION_WALL_COLOR RED
 #define DEBUG_NORMAL_WALL_COLOR WHITE
 
-void render_table(const table_t *table, const bool debug)
+void draw_circle_texture(const Texture2D tex, const Vector2 position,
+                         const float radius, const float rotation)
 {
+    Rectangle source = {0, 0, tex.width, tex.height};
+    float diameter = radius * 2.0f;
+    float tex_ratio =
+        tex.width == tex.height ? 1 : (float) tex.width / (float) tex.height;
+    Rectangle dest = {position.x, position.y, diameter * fmaxf(tex_ratio, 1),
+                      diameter / fminf(tex_ratio, 1)};
+    Vector2 origin = {radius * fmaxf(tex_ratio, 1),
+                      radius / fminf(tex_ratio, 1)};
+
+    DrawTexturePro(tex, source, dest, origin, rotation * RAD2DEG, WHITE);
+}
+
+void render_table(const table_t *table, const textures_t *textures,
+                  const bool debug)
+{
+    for (int h = 0; h < ARR_LEN(table->holes); h++) {
+        hole_t hole = table->holes[h];
+
+        if (debug) {
+            DrawCircleLines((int) hole.position.x, (int) hole.position.y,
+                            (int) hole.radius, RED);
+        } else {
+            draw_circle_texture(textures->hole, hole.position, hole.radius,
+                                hole.rotation);
+        }
+    }
+
     for (int i = 0; i < ARR_LEN(table->walls); i++) {
         wall_t wall = table->walls[i];
         Color color = (debug && wall.is_colliding) ? DEBUG_COLLISION_WALL_COLOR
@@ -23,14 +52,6 @@ void render_table(const table_t *table, const bool debug)
             Vector2 b = wall.vertices[(v + 1) % ARR_LEN(wall.vertices)];
             DrawLine((int) a.x, (int) a.y, (int) b.x, (int) b.y, color);
         }
-
-        if (debug) {
-            for (int h = 0; h < ARR_LEN(table->holes); h++) {
-                hole_t hole = table->holes[h];
-                DrawCircleLines((int) hole.position.x, (int) hole.position.y,
-                                (int) hole.radius, color);
-            }
-        }
     }
 }
 
@@ -38,19 +59,6 @@ void render_ball(const ball_t *ball, const textures_t *textures,
                  const bool debug)
 {
     Texture2D tex = get_planet_texture(textures, ball->planet);
-
-    Rectangle source = {0, 0, tex.width, tex.height};
-    float diameter = ball->radius * 2;
-    float tex_ratio =
-        tex.width == tex.height ? 1 : (float) tex.width / (float) tex.height;
-    Rectangle dest = {ball->position.x, ball->position.y,
-                      diameter * fmaxf(tex_ratio, 1),
-                      diameter / fminf(tex_ratio, 1)};
-    Vector2 origin = {ball->radius * fmaxf(tex_ratio, 1),
-                      ball->radius / fminf(tex_ratio, 1)};
-
-    DrawTexturePro(tex, source, dest, origin, ball->rotation * RAD2DEG,
-                   (debug && ball->is_colliding) ? RED : WHITE);
 
     if (debug) {
         DrawCircleLines(ball->position.x, ball->position.y, ball->radius, RED);
@@ -76,6 +84,8 @@ void render_ball(const ball_t *ball, const textures_t *textures,
             ball->position.y + ball->radius * sin(ball->rotation)};
         DrawLine(rotation_line_start.x, rotation_line_start.y,
                  rotation_line_end.x, rotation_line_end.y, RED);
+    } else {
+        draw_circle_texture(tex, ball->position, ball->radius, ball->rotation);
     }
 }
 
@@ -115,7 +125,7 @@ void render_world(const app_t *app)
     BeginDrawing();
     ClearBackground(BLACK);
 
-    render_table(app->world->table, app->debug);
+    render_table(app->world->table, app->textures, app->debug);
     for (int i = 0; i < app->world->balls_length; i++) {
         render_ball(app->world->balls[i], app->textures, app->debug);
     }

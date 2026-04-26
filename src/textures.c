@@ -16,6 +16,8 @@ textures_t *textures_setup()
     textures->planets[7] = LoadTexture("textures/neptune.png");
     textures->planets[8] = LoadTexture("textures/pluto.png");
 
+    textures->hole = LoadTexture("textures/black-hole.png");
+
     return textures;
 }
 

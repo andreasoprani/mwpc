@@ -25,6 +25,7 @@ void world_destroy(world_t *world);
 void world_update(world_t *world, const float dt);
 
 void world_add_ball(world_t *world, ball_t *ball);
+void world_remove_ball(world_t *world, ball_t *ball);
 void world_place_all_balls(world_t *world, const planet_t controlled_planet,
                            const planet_t *other_planets,
                            const unsigned int num_other_planets);

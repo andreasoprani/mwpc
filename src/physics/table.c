@@ -44,6 +44,7 @@ table_t *table_create(Vector2 origin, float width, float height)
             .position =
                 Vector2Add(anchors[i], Vector2Scale(anchor_outward[i], offset)),
             .radius = HOLE_RADIUS,
+            .rotation = 0,
         };
     }
 

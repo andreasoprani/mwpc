@@ -1,6 +1,7 @@
 #include "world.h"
 #include "constants.h"
 #include "physics/ball.h"
+#include "physics/constants.h"
 #include "physics/contact.h"
 #include "physics/planets.h"
 #include "physics/table.h"
@@ -126,6 +127,24 @@ void world_update(world_t *world, const float dt)
 
     for (int i = 0; i < world->balls_length; i++)
         ball_integrate_velocities(world->balls[i], dt);
+
+    for (int i = 0; i < ARR_LEN(world->table->holes); i++) {
+        hole_t *hole = &world->table->holes[i];
+        hole->rotation += HOLE_ROTATION_SPEED;
+    }
+
+    for (int b = 0; b < world->balls_length; b++) {
+        ball_t *ball = world->balls[b];
+        for (int h = 0; h < ARR_LEN(world->table->holes); h++) {
+            hole_t *hole = &world->table->holes[h];
+            if (Vector2Distance(ball->position, hole->position) <
+                hole->radius) {
+                world_remove_ball(world, ball);
+            }
+        }
+    }
+
+    // TODO: check win/game over condition
 }
 
 void world_toggle_gravity(world_t *world)
@@ -148,6 +167,20 @@ void world_add_ball(world_t *world, ball_t *ball)
             world->contacts, world->contacts_capacity * sizeof(contact_t));
     }
     world->balls[world->balls_length++] = ball;
+}
+
+void world_remove_ball(world_t *world, ball_t *ball)
+{
+    int ball_index = 0;
+    for (int i = 0; i < world->balls_length; i++) {
+        if (world->balls[i]->planet == ball->planet) {
+            ball_index = i;
+            break;
+        }
+    }
+
+    world->balls[ball_index] = world->balls[world->balls_length - 1];
+    world->balls_length -= 1;
 }
 
 bool is_position_in_cone(const Vector2 position, const Vector2 apex)
