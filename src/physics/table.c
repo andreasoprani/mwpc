@@ -85,8 +85,8 @@ table_t *table_create(Vector2 origin, float width, float height)
             .vertices[1] = v_outer1,
             .vertices[2] = v_inner1,
             .vertices[3] = v_inner0,
-            .restitution = DEFAULT_WALL_RESTITUTION,
-            .friction = DEFAULT_WALL_FRICTION,
+            .restitution = WALL_RESTITUTION,
+            .friction = WALL_FRICTION,
             .is_colliding = false,
         };
     }

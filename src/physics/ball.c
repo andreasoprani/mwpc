@@ -30,8 +30,8 @@ ball_t *ball_create(const planet_t planet, const Vector2 position)
     ball->angular_velocity = 0.0f;
     ball->angular_acceleration = 0.0f;
 
-    ball->restitution = DEFAULT_BALL_RESTITUTION;
-    ball->friction = DEFAULT_BALL_FRICTION;
+    ball->restitution = BALL_RESTITUTION;
+    ball->friction = BALL_FRICTION;
 
     // Debug
     ball->is_colliding = false;

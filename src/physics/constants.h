@@ -11,14 +11,14 @@
 
 #define GRAVITATIONAL_CONSTANT 1000.0f
 
-#define DEFAULT_BALL_RESTITUTION 0.9f
-#define DEFAULT_BALL_FRICTION 0.7f
+#define BALL_RESTITUTION 0.9f
+#define BALL_FRICTION 0.7f
 
 #define EARTH_MASS 100.0f
 #define EARTH_RADIUS 10.0f
 
 #define MASS_SQUASH_POW_EXP 0.01f
-#define RADIUS_SQUASH_POW_EXP 0.4f
+#define RADIUS_SQUASH_POW_EXP 0.15f
 
 #define HOLE_RADIUS 30.0f
 #define HOLE_OFFSET_CORNER                                                     \
@@ -33,8 +33,8 @@
 #define JAW_FLARE_ANGLE                                                        \
     40.0f // degrees; must satisfy tan(angle) < HOLE_MOUTH_SIDE/WALL_THICKNESS
 
-#define DEFAULT_WALL_RESTITUTION 0.9f // [0, 1]
-#define DEFAULT_WALL_FRICTION 0.7f    // [0, 1]
+#define WALL_RESTITUTION 0.9f // [0, 1]
+#define WALL_FRICTION 0.7f    // [0, 1]
 #define WALL_THICKNESS 20.0f
 
 #define SHOT_IMPULSE_MULTIPLIER 500.0f // J

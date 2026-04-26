@@ -11,11 +11,10 @@
 - [x] fix ringed planets (saturn & uranus)
 - [x] real masses and relative sizes planets
 - [x] auto-setup of starting positions
-- [ ] walls -> polygons
+- [x] walls -> polygons
 - [ ] holes
 - [ ] game loop
-- [ ] trajectory
+- [ ] trajectories
 - [ ] different starting layouts
-- [ ] controlling constants for debugging (UI sliders)
-- [ ] render nice walls
 - [ ] render stars in the background
+- [ ] render nice walls (?)
