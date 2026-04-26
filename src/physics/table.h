@@ -30,9 +30,9 @@ typedef struct table {
     float height;
 } table_t;
 
-table_t *table_create(Vector2 origin, float width, float height);
+void table_setup(table_t *table, Vector2 origin, float width, float height);
 
-Vector2 table_get_position(const table_t *table,
+Vector2 table_get_position(const table_t table,
                            const Vector2 relative_position);
 
 #endif

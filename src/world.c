@@ -12,7 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-world_t *world_create(table_t *table)
+world_t *world_create(Vector2 table_origin, float table_width,
+                      float table_height)
 {
     world_t *world = malloc(sizeof(world_t));
     world->balls_count = 0;
@@ -20,7 +21,8 @@ world_t *world_create(table_t *table)
 
     world->gravity_enabled = false;
 
-    world->table = table;
+    table_setup(&world->table, table_origin, table_width, table_height);
+
     return world;
 };
 
@@ -28,10 +30,6 @@ void world_destroy(world_t *world)
 {
     free(world->balls);
     free(world->contacts);
-    for (int i = 0; i < ARR_LEN(world->table->walls); i++)
-        free(world->table->walls[i].vertices);
-    free(world->table->walls);
-    free(world->table);
     free(world);
 }
 
@@ -69,8 +67,8 @@ void world_update(world_t *world, const float dt)
     for (int i = 0; i < world->balls_count; i++)
         (&world->balls[i])->is_colliding = false;
 
-    for (int i = 0; i < ARR_LEN(world->table->walls); i++)
-        (&world->table->walls[i])->is_colliding = false;
+    for (int i = 0; i < ARR_LEN(world->table.walls); i++)
+        (&world->table.walls[i])->is_colliding = false;
 
     for (int i = 0; i < world->balls_count - 1; i++) {
         ball_t *ball_i = &world->balls[i];
@@ -89,8 +87,8 @@ void world_update(world_t *world, const float dt)
 
     for (int i = 0; i < world->balls_count; i++) {
         ball_t *ball = (&world->balls[i]);
-        for (int j = 0; j < ARR_LEN(world->table->walls); j++) {
-            wall_t *wall = &world->table->walls[j];
+        for (int j = 0; j < ARR_LEN(world->table.walls); j++) {
+            wall_t *wall = &world->table.walls[j];
 
             contact_t *contact = &world->contacts[world->contacts_count];
             if (ball_wall_are_colliding(ball, wall, contact)) {
@@ -119,17 +117,16 @@ void world_update(world_t *world, const float dt)
     for (int i = 0; i < world->balls_count; i++)
         ball_integrate_velocities(&world->balls[i], dt);
 
-    for (int i = 0; i < ARR_LEN(world->table->holes); i++) {
-        hole_t *hole = &world->table->holes[i];
-        hole->rotation += HOLE_ROTATION_SPEED;
+    for (int i = 0; i < ARR_LEN(world->table.holes); i++) {
+        (&world->table.holes[i])->rotation += HOLE_ROTATION_SPEED;
     }
 
     { // Check for balls inside holes and remove them
         unsigned int to_remove = 0;
         for (int b = 0; b < world->balls_count; b++) {
             ball_t *ball = &world->balls[b];
-            for (int h = 0; h < ARR_LEN(world->table->holes); h++) {
-                hole_t *hole = &world->table->holes[h];
+            for (int h = 0; h < ARR_LEN(world->table.holes); h++) {
+                hole_t *hole = &world->table.holes[h];
                 if (Vector2Distance(ball->position, hole->position) <
                     hole->radius) {
                     to_remove |= PLANET_BIT(ball->planet);

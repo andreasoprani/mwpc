@@ -11,7 +11,7 @@ typedef struct world {
     ball_t balls[NUM_PLANETS];
     unsigned int balls_count;
 
-    table_t *table;
+    table_t table;
 
     contact_t
         contacts[NUM_PLANETS * (NUM_PLANETS - 1) + NUM_PLANETS * NUM_WALLS];
@@ -20,7 +20,8 @@ typedef struct world {
     bool gravity_enabled;
 } world_t;
 
-world_t *world_create(table_t *table);
+world_t *world_create(Vector2 table_origin, float table_width,
+                      float table_height);
 void world_destroy(world_t *world);
 void world_update(world_t *world, const float dt);
 

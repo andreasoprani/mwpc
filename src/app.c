@@ -20,7 +20,7 @@ void toggle_debug(app_t *app)
     printf("Debug mode: %s\n", app->debug ? "ON" : "OFF");
 }
 
-table_t *table_setup(app_t *app)
+world_t *world_setup(app_t *app)
 {
     float sw = GetScreenWidth();
     float sh = GetScreenHeight();
@@ -30,14 +30,7 @@ table_t *table_setup(app_t *app)
 
     Vector2 origin = {(sw - table_width) / 2, TABLE_H_PAD};
 
-    return table_create(origin, table_width, table_height);
-}
-
-world_t *world_setup(app_t *app)
-{
-    table_t *table = table_setup(app);
-
-    world_t *world = world_create(table);
+    world_t *world = world_create(origin, table_width, table_height);
 
     static const planet_t other_planets[] = {MERCURY, VENUS,  MARS,    JUPITER,
                                              SATURN,  URANUS, NEPTUNE, PLUTO};

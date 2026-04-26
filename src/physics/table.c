@@ -4,9 +4,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-table_t *table_create(Vector2 origin, float width, float height)
+void table_setup(table_t *table, Vector2 origin, float width, float height)
 {
-    table_t *table = malloc(sizeof(table_t));
     table->origin = origin;
     table->width = width;
     table->height = height;
@@ -91,15 +90,12 @@ table_t *table_create(Vector2 origin, float width, float height)
             .is_colliding = false,
         };
     }
-
-    return table;
 }
 
-Vector2 table_get_position(const table_t *table,
-                           const Vector2 relative_position)
+Vector2 table_get_position(const table_t table, const Vector2 relative_position)
 {
-    return (Vector2) {table->origin.x + relative_position.x * table->width,
-                      table->origin.y + relative_position.y * table->height};
+    return (Vector2) {table.origin.x + relative_position.x * table.width,
+                      table.origin.y + relative_position.y * table.height};
 }
 
 void get_wall_vertices(const int wall_n, const hole_t hole0, const hole_t hole1,

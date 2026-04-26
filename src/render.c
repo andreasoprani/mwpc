@@ -28,11 +28,11 @@ void draw_circle_texture(const Texture2D tex, const Vector2 position,
     DrawTexturePro(tex, source, dest, origin, rotation * RAD2DEG, WHITE);
 }
 
-void render_table(const table_t *table, const textures_t *textures,
+void render_table(const table_t table, const textures_t *textures,
                   const bool debug)
 {
-    for (int h = 0; h < ARR_LEN(table->holes); h++) {
-        hole_t hole = table->holes[h];
+    for (int h = 0; h < ARR_LEN(table.holes); h++) {
+        hole_t hole = table.holes[h];
 
         if (debug) {
             DrawCircleLines((int) hole.position.x, (int) hole.position.y,
@@ -43,8 +43,8 @@ void render_table(const table_t *table, const textures_t *textures,
         }
     }
 
-    for (int i = 0; i < ARR_LEN(table->walls); i++) {
-        wall_t wall = table->walls[i];
+    for (int i = 0; i < ARR_LEN(table.walls); i++) {
+        wall_t wall = table.walls[i];
         Color color = (debug && wall.is_colliding) ? DEBUG_COLLISION_WALL_COLOR
                                                    : DEBUG_NORMAL_WALL_COLOR;
         for (int v = 0; v < ARR_LEN(wall.vertices); v++) {
