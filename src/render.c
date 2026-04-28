@@ -113,30 +113,107 @@ void render_contact(const contact_t *contact)
 
 void render_debug_info(const app_t *app)
 {
-    for (int i = 0; i < app->world.contacts_count; i++) {
-        render_contact(&app->world.contacts[i]);
+    for (int i = 0; i < app->world->contacts_count; i++) {
+        render_contact(&app->world->contacts[i]);
     }
 
     DrawText("Debug Mode ON", 5, GetScreenHeight() - 25, 20, RED);
 }
 
-void render_world(const app_t *app)
+void render_app_state(const app_state_t state)
+{
+    if (state == APP_STATE_RUNNING)
+        return;
+
+    char *main_text = "";
+    char *run_text = "";
+    char *exit_text = "Press ESC to exit";
+    switch (state) {
+    case APP_STATE_MENU:
+        main_text = "Welcome to Milky Way Pool Club!";
+        run_text = "Press SPACE to start";
+        break;
+    case APP_STATE_RUNNING:
+        break;
+    case APP_STATE_PAUSED:
+        main_text = "PAUSE";
+        run_text = "Press SPACE to resume";
+        break;
+    case APP_STATE_WIN:
+        main_text = "YOU WIN";
+        run_text = "Press SPACE to restart";
+        break;
+    case APP_STATE_LOSE:
+        main_text = "GAME OVER";
+        run_text = "Press SPACE to restart";
+        break;
+    }
+
+    const float main_font_size = 30;
+    const float keys_font_size = 20;
+    const float main_spacing = 3;
+    const float keys_spacing = 2;
+    const float keys_v_spacing = 10;
+
+    const Vector2 center =
+        (Vector2) {GetScreenWidth() / 2, GetScreenHeight() / 2};
+
+    Vector2 main_text_size = MeasureTextEx(GetFontDefault(), main_text,
+                                           main_font_size, main_spacing);
+    Vector2 run_text_size =
+        MeasureTextEx(GetFontDefault(), run_text, keys_font_size, keys_spacing);
+    Vector2 exit_text_size = MeasureTextEx(GetFontDefault(), exit_text,
+                                           keys_font_size, keys_spacing);
+
+    const float padding = 50;
+
+    float rw =
+        fmaxf(main_text_size.x, fmaxf(run_text_size.x, exit_text_size.x)) +
+        2 * padding;
+    float rh = main_text_size.y + run_text_size.y + exit_text_size.y +
+               keys_v_spacing + 3 * padding;
+    float r_outline = 2;
+
+    DrawRectangle(center.x - (rw + r_outline) / 2,
+                  center.y - (rh + r_outline) / 2, (rw + r_outline),
+                  (rh + r_outline), WHITE);
+    DrawRectangle(center.x - rw / 2, center.y - rh / 2, rw, rh, BLACK);
+
+    DrawTextEx(GetFontDefault(), main_text,
+               (Vector2) {center.x - main_text_size.x / 2,
+                          center.y - rh / 2 + padding},
+               main_font_size, main_spacing, WHITE);
+
+    DrawTextEx(GetFontDefault(), run_text,
+               (Vector2) {center.x - run_text_size.x / 2,
+                          center.y - rh / 2 + 2 * padding + main_text_size.y},
+               keys_font_size, keys_spacing, WHITE);
+    DrawTextEx(GetFontDefault(), exit_text,
+               (Vector2) {center.x - exit_text_size.x / 2,
+                          center.y - rh / 2 + 2 * padding + main_text_size.y +
+                              keys_v_spacing + run_text_size.y},
+               keys_font_size, keys_spacing, WHITE);
+}
+
+void render(const app_t *app)
 {
     BeginDrawing();
     ClearBackground(BLACK);
 
-    render_table(app->world.table, &app->textures, app->debug);
-    for (int i = 0; i < app->world.balls_count; i++) {
-        render_ball(&app->world.balls[i], &app->textures, app->debug);
+    render_table(app->world->table, &app->textures, app->debug);
+    for (int i = 0; i < app->world->balls_count; i++) {
+        render_ball(&app->world->balls[i], &app->textures, app->debug);
     }
 
     if (app->shot != NULL) {
-        render_shot(&app->world.balls[0], app->shot);
+        render_shot(&app->world->balls[0], app->shot);
     }
 
     if (app->debug) {
         render_debug_info(app);
     }
+
+    render_app_state(app->state);
 
     EndDrawing();
 }

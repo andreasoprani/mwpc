@@ -24,4 +24,5 @@ void input_update(input_t *input)
     input->key_d_pressed = IsKeyPressed(KEY_D);
     input->key_g_pressed = IsKeyPressed(KEY_G);
     input->key_space_pressed = IsKeyPressed(KEY_SPACE);
+    input->key_esc_pressed = IsKeyPressed(KEY_ESCAPE);
 }

@@ -12,15 +12,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void world_setup(world_t *world, Vector2 table_origin, float table_width,
-                 float table_height)
+world_t *world_create()
 {
+    world_t *world = (world_t *) malloc(sizeof(world_t));
+
+    float sw = GetScreenWidth();
+    float sh = GetScreenHeight();
+
+    const float table_height = sh - 2 * TABLE_H_PAD;
+    const float table_width = table_height / TABLE_RATIO;
+
+    const Vector2 origin = {(sw - table_width) / 2, TABLE_H_PAD};
+
     world->balls_count = 0;
     world->contacts_count = 0;
 
     world->gravity_enabled = false;
 
-    table_setup(&world->table, table_origin, table_width, table_height);
+    table_setup(&world->table, origin, table_width, table_height);
+
+    world_place_all_balls(world);
+
+    return world;
 };
 
 void world_update(world_t *world, const float dt)
@@ -142,6 +155,9 @@ void world_update(world_t *world, const float dt)
             }
         }
     }
+
+    if (world->balls_count == 0) {
+    }
 }
 
 void world_toggle_gravity(world_t *world)
@@ -176,18 +192,16 @@ bool is_position_valid(const world_t *world, const Vector2 position,
                                table_get_position(world->table, BALLS_APEX));
 }
 
-void world_place_all_balls(world_t *world, const planet_t controlled_planet,
-                           const planet_t *other_planets,
-                           const unsigned int num_other_planets)
+void world_place_all_balls(world_t *world)
 {
-    world->balls[world->balls_count++] =
-        ball_create(controlled_planet,
-                    table_get_position(world->table, CONTROLLED_BALL_POSITION));
-
-    if (!num_other_planets)
-        return;
+    world->balls[world->balls_count++] = ball_create(
+        EARTH, table_get_position(world->table, CONTROLLED_BALL_POSITION));
 
     const Vector2 apex_position = table_get_position(world->table, BALLS_APEX);
+
+    static const planet_t other_planets[] = {MERCURY, VENUS,  MARS,    JUPITER,
+                                             SATURN,  URANUS, NEPTUNE, PLUTO};
+
     world->balls[world->balls_count++] =
         ball_create(other_planets[0], apex_position);
 
@@ -196,7 +210,7 @@ void world_place_all_balls(world_t *world, const planet_t controlled_planet,
     const Vector2 right_edge_dir =
         Vector2Rotate((Vector2) {0, -1}, -DEG2RAD * CONE_ANGLE / 2);
 
-    for (unsigned int i = 1; i < num_other_planets; i++) {
+    for (unsigned int i = 1; i < ARR_LEN(other_planets); i++) {
         planet_t planet = other_planets[i];
         float planet_radius = get_planet_radius(planet);
 

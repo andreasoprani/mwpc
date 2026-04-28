@@ -24,37 +24,35 @@ void toggle_debug(app_t *app)
 app_t *app_setup()
 {
     app_t *app = malloc(sizeof(app_t));
+
+    app->state = APP_STATE_MENU;
+
     input_reset(&app->input);
     app->shot = NULL;
 
     app->debug = false;
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Milky Way Pool Club");
 
+    SetExitKey(KEY_NULL);
+
     textures_setup(&app->textures);
     SetTargetFPS(120);
 
-    float sw = GetScreenWidth();
-    float sh = GetScreenHeight();
-
-    const float table_height = sh - 2 * TABLE_H_PAD;
-    const float table_width = table_height / TABLE_RATIO;
-
-    Vector2 origin = {(sw - table_width) / 2, TABLE_H_PAD};
-
-    world_setup(&app->world, origin, table_width, table_height);
-
-    static const planet_t other_planets[] = {MERCURY, VENUS,  MARS,    JUPITER,
-                                             SATURN,  URANUS, NEPTUNE, PLUTO};
-    world_place_all_balls(&app->world, EARTH, other_planets,
-                          sizeof(other_planets) / sizeof(planet_t));
+    app->world = world_create();
 
     return app;
 }
 
-void apply_app_inputs(app_t *app)
+void app_destroy(app_t *app)
+{
+    free(app->world);
+    free(app);
+}
+
+void apply_game_inputs(app_t *app)
 {
     if (app->input.key_g_pressed)
-        world_toggle_gravity(&app->world);
+        world_toggle_gravity(app->world);
 
     if (app->input.key_d_pressed)
         toggle_debug(app);
@@ -67,19 +65,80 @@ void apply_app_inputs(app_t *app)
 
     if (app->shot != NULL)
         app->shot->end = app->input.mouse_position;
+
+    if (app->input.key_esc_pressed)
+        app->state = APP_STATE_PAUSED;
 }
 
-void app_frame(app_t *app)
+void running_frame(app_t *app)
 {
     float dt = GetFrameTime();
 
-    input_update(&app->input);
-    apply_app_inputs(app);
+    apply_game_inputs(app);
 
     if ((!app->debug || app->input.key_space_pressed) && app->shot == NULL) {
-        world_update(&app->world, dt);
+        world_update(app->world, dt);
     }
-    render_world(app);
+
+    bool earth_ball_exists = false;
+    for (unsigned int i = 0; i < app->world->balls_count; i++) {
+        if (app->world->balls[i].planet == EARTH) {
+            earth_ball_exists = true;
+            break;
+        }
+    }
+    if (!earth_ball_exists) {
+        app->state = APP_STATE_LOSE;
+    } else if (app->world->balls_count == 1) {
+        app->state = APP_STATE_WIN;
+    }
+}
+
+int pause_frame(app_t *app)
+{
+    if (app->input.key_space_pressed) {
+        app->state = APP_STATE_RUNNING;
+    }
+    if (app->input.key_esc_pressed) {
+        return 1;
+    }
+    return 0;
+}
+
+int end_game_frame(app_t *app)
+{
+    if (app->input.key_esc_pressed) {
+        return 1;
+    } else if (app->input.key_space_pressed) {
+        app->state = APP_STATE_RUNNING;
+        free(app->world);
+        app->world = world_create();
+    }
+    return 0;
+}
+
+int app_frame(app_t *app)
+{
+    input_update(&app->input);
+    switch (app->state) {
+    case APP_STATE_RUNNING:
+        running_frame(app);
+        break;
+    case APP_STATE_MENU:
+    case APP_STATE_PAUSED:
+        if (pause_frame(app))
+            return 1;
+        break;
+    case APP_STATE_WIN:
+    case APP_STATE_LOSE:
+        if (end_game_frame(app))
+            return 1;
+        break;
+    }
+
+    render(app);
+
+    return 0;
 }
 
 void app_init_shot(app_t *app)
@@ -92,7 +151,7 @@ void app_apply_shot(app_t *app)
     if (app->shot == NULL)
         return;
 
-    ball_t *ball = &app->world.balls[0];
+    ball_t *ball = &app->world->balls[0];
 
     Vector2 shot_vec = shot_vector(app->shot);
 

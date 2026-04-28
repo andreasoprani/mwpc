@@ -6,8 +6,18 @@
 #include "textures.h"
 #include "world.h"
 
+typedef enum {
+    APP_STATE_MENU,
+    APP_STATE_RUNNING,
+    APP_STATE_PAUSED,
+    APP_STATE_WIN,
+    APP_STATE_LOSE,
+} app_state_t;
+
 typedef struct app {
-    world_t world;
+    app_state_t state;
+
+    world_t *world;
     input_t input;
     textures_t textures;
 
@@ -18,7 +28,8 @@ typedef struct app {
 } app_t;
 
 app_t *app_setup();
-void app_frame(app_t *app);
+void app_destroy(app_t *app);
+int app_frame(app_t *app);
 
 void app_init_shot(app_t *app);
 void app_apply_shot(app_t *app);

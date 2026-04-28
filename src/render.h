@@ -3,6 +3,6 @@
 
 #include "app.h"
 
-void render_world(const app_t *app);
+void render(const app_t *app);
 
 #endif

@@ -12,6 +12,7 @@ typedef struct input {
     bool key_d_pressed;
     bool key_g_pressed;
     bool key_space_pressed;
+    bool key_esc_pressed;
 } input_t;
 
 void input_reset(input_t *input);

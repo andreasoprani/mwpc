@@ -13,8 +13,11 @@
 - [x] auto-setup of starting positions
 - [x] walls -> polygons
 - [x] holes
-- [ ] game loop
+- [x] game loop
 - [ ] build for web
+- [ ] remove debug mode
+- [ ] auto-set gravity
+- [ ] shots count in win screen
 - [ ] trajectories
 - [ ] different starting layouts
 - [ ] render stars in the background

@@ -7,7 +7,9 @@ int main()
     app_t *app = app_setup();
 
     while (!WindowShouldClose()) {
-        app_frame(app);
+        const int exit_code = app_frame(app);
+        if (exit_code)
+            break;
     }
 
     CloseWindow();
