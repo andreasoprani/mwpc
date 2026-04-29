@@ -23,6 +23,9 @@ typedef struct app {
 
     shot_t *shot;
 
+    int window_width;
+    int window_height;
+
 } app_t;
 
 app_t *app_setup();

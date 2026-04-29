@@ -12,24 +12,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define WORLD_TABLE_HEIGHT (720.0f - 2.0f * TABLE_H_PAD)
+#define WORLD_TABLE_WIDTH (WORLD_TABLE_HEIGHT / TABLE_RATIO)
+
 world_t *world_create()
 {
     world_t *world = (world_t *) malloc(sizeof(world_t));
-
-    float sw = GetScreenWidth();
-    float sh = GetScreenHeight();
-
-    const float table_height = sh - 2 * TABLE_H_PAD;
-    const float table_width = table_height / TABLE_RATIO;
-
-    const Vector2 origin = {(sw - table_width) / 2, TABLE_H_PAD};
 
     world->balls_count = 0;
     world->contacts_count = 0;
 
     world->gravity_enabled = false;
 
-    table_setup(&world->table, origin, table_width, table_height);
+    table_setup(&world->table, Vector2Zero(), WORLD_TABLE_WIDTH,
+                WORLD_TABLE_HEIGHT);
 
     world_place_all_balls(world);
 
@@ -194,6 +190,8 @@ bool is_position_valid(const world_t *world, const Vector2 position,
 
 void world_place_all_balls(world_t *world)
 {
+    const float balls_gap = BALLS_GAP;
+
     world->balls[world->balls_count++] = ball_create(
         EARTH, table_get_position(world->table, CONTROLLED_BALL_POSITION));
 
@@ -223,8 +221,8 @@ void world_place_all_balls(world_t *world)
             for (int k = j + 1; k < world->balls_count; k++) {
                 const ball_t *ball1 = &world->balls[j];
                 const ball_t *ball2 = &world->balls[k];
-                const float rd1 = ball1->radius + planet_radius + BALLS_GAP;
-                const float rd2 = ball2->radius + planet_radius + BALLS_GAP;
+                const float rd1 = ball1->radius + planet_radius + balls_gap;
+                const float rd2 = ball2->radius + planet_radius + balls_gap;
                 const float d =
                     Vector2Distance(ball1->position, ball2->position);
                 if (d > (rd1 + rd2) || d < fabsf(rd1 - rd2)) {
@@ -259,7 +257,7 @@ void world_place_all_balls(world_t *world)
         for (int j = 1; j < world->balls_count; j++) {
             const ball_t *ball = &world->balls[j];
             const float required_distance =
-                ball->radius + planet_radius + BALLS_GAP;
+                ball->radius + planet_radius + balls_gap;
 
             for (int ed = 0; ed <= 1; ed++) {
                 const Vector2 edge_dir =

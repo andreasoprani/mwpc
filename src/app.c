@@ -11,8 +11,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if defined(PLATFORM_WEB)
+#include <emscripten/html5.h>
+#endif
+
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
+
+static void get_window_size(int *width, int *height)
+{
+#if defined(PLATFORM_WEB)
+    double css_width = SCREEN_WIDTH;
+    double css_height = SCREEN_HEIGHT;
+    emscripten_get_element_css_size("#canvas", &css_width, &css_height);
+    *width = (int) css_width;
+    *height = (int) css_height;
+#else
+    *width = GetScreenWidth();
+    *height = GetScreenHeight();
+#endif
+
+    if (*width < 1)
+        *width = SCREEN_WIDTH;
+    if (*height < 1)
+        *height = SCREEN_HEIGHT;
+}
+
+static void resize_window_if_needed(app_t *app)
+{
+    int width;
+    int height;
+    get_window_size(&width, &height);
+
+    if (width == app->window_width && height == app->window_height)
+        return;
+
+#if defined(PLATFORM_WEB)
+    emscripten_set_canvas_element_size("#canvas", width, height);
+    SetWindowSize(width, height);
+#endif
+
+    app->window_width = width;
+    app->window_height = height;
+    if (app->shot != NULL) {
+        free(app->shot);
+        app->shot = NULL;
+    }
+}
 
 app_t *app_setup()
 {
@@ -23,7 +68,23 @@ app_t *app_setup()
     input_reset(&app->input);
     app->shot = NULL;
 
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Milky Way Pool Club");
+    int screen_width = SCREEN_WIDTH;
+    int screen_height = SCREEN_HEIGHT;
+
+#if !defined(PLATFORM_WEB)
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+#else
+    get_window_size(&screen_width, &screen_height);
+#endif
+
+    InitWindow(screen_width, screen_height, "Milky Way Pool Club");
+
+#if defined(PLATFORM_WEB)
+    emscripten_set_canvas_element_size("#canvas", screen_width, screen_height);
+#endif
+
+    app->window_width = screen_width;
+    app->window_height = screen_height;
 
     SetExitKey(KEY_NULL);
 
@@ -101,7 +162,10 @@ void end_game_frame(app_t *app)
 
 int app_frame(app_t *app)
 {
+    resize_window_if_needed(app);
     input_update(&app->input);
+    app->input.mouse_position =
+        render_screen_to_world(app->world, app->input.mouse_position);
     switch (app->state) {
     case APP_STATE_RUNNING:
         running_frame(app);

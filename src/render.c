@@ -2,6 +2,7 @@
 #include "textures.h"
 
 #include "app.h"
+#include "constants.h"
 #include "physics/shot.h"
 #include "raylib.h"
 #include "raymath.h"
@@ -9,6 +10,48 @@
 #include <stdio.h>
 
 #define WALL_COLOR WHITE
+
+typedef struct render_transform {
+    Vector2 offset;
+    float scale;
+} render_transform_t;
+
+static render_transform_t render_get_transform(const world_t *world)
+{
+    const float padding = TABLE_H_PAD;
+    const float available_width = fmaxf(1.0f, GetScreenWidth() - 2.0f * padding);
+    const float available_height =
+        fmaxf(1.0f, GetScreenHeight() - 2.0f * padding);
+
+    const float scale = fminf(available_width / world->table.width,
+                              available_height / world->table.height);
+
+    const Vector2 table_screen_size = {world->table.width * scale,
+                                       world->table.height * scale};
+    const Vector2 table_screen_origin = {
+        (GetScreenWidth() - table_screen_size.x) / 2.0f,
+        (GetScreenHeight() - table_screen_size.y) / 2.0f,
+    };
+
+    return (render_transform_t) {
+        .offset = Vector2Subtract(
+            table_screen_origin, Vector2Scale(world->table.origin, scale)),
+        .scale = scale,
+    };
+}
+
+static Vector2 world_to_screen(render_transform_t transform,
+                               const Vector2 position)
+{
+    return Vector2Add(transform.offset, Vector2Scale(position, transform.scale));
+}
+
+Vector2 render_screen_to_world(const world_t *world, Vector2 screen_position)
+{
+    const render_transform_t transform = render_get_transform(world);
+    return Vector2Scale(Vector2Subtract(screen_position, transform.offset),
+                        1.0f / transform.scale);
+}
 
 void draw_circle_texture(const Texture2D tex, const Vector2 position,
                          const float radius, const float rotation)
@@ -25,32 +68,38 @@ void draw_circle_texture(const Texture2D tex, const Vector2 position,
     DrawTexturePro(tex, source, dest, origin, rotation * RAD2DEG, WHITE);
 }
 
-void render_table(const table_t table, const textures_t *textures)
+void render_table(const table_t table, const textures_t *textures,
+                  const render_transform_t transform)
 {
     for (int h = 0; h < ARR_LEN(table.holes); h++) {
         hole_t hole = table.holes[h];
 
-        draw_circle_texture(textures->hole, hole.position, hole.radius,
-                            hole.rotation);
+        draw_circle_texture(textures->hole,
+                            world_to_screen(transform, hole.position),
+                            hole.radius * transform.scale, hole.rotation);
     }
 
     for (int i = 0; i < ARR_LEN(table.walls); i++) {
         wall_t wall = table.walls[i];
         for (int v = 0; v < ARR_LEN(wall.vertices); v++) {
-            Vector2 a = wall.vertices[v];
-            Vector2 b = wall.vertices[(v + 1) % ARR_LEN(wall.vertices)];
+            Vector2 a = world_to_screen(transform, wall.vertices[v]);
+            Vector2 b = world_to_screen(
+                transform, wall.vertices[(v + 1) % ARR_LEN(wall.vertices)]);
             DrawLine((int) a.x, (int) a.y, (int) b.x, (int) b.y, WALL_COLOR);
         }
     }
 }
 
-void render_ball(const ball_t *ball, const textures_t *textures)
+void render_ball(const ball_t *ball, const textures_t *textures,
+                 const render_transform_t transform)
 {
     Texture2D tex = get_planet_texture(textures, ball->planet);
-    draw_circle_texture(tex, ball->position, ball->radius, ball->rotation);
+    draw_circle_texture(tex, world_to_screen(transform, ball->position),
+                        ball->radius * transform.scale, ball->rotation);
 }
 
-void render_shot(const ball_t *ball, const shot_t *shot)
+void render_shot(const ball_t *ball, const shot_t *shot,
+                 const render_transform_t transform)
 {
     Vector2 shot_vec = shot_vector(shot);
     Vector2 shot_dir = Vector2Normalize(shot_vec);
@@ -59,17 +108,24 @@ void render_shot(const ball_t *ball, const shot_t *shot)
 
     Vector2 line_end = Vector2Add(line_start, shot_vec);
 
+    line_start = world_to_screen(transform, line_start);
+    line_end = world_to_screen(transform, line_end);
+
     DrawLine(line_start.x, line_start.y, line_end.x, line_end.y, WHITE);
 }
 
-void render_contact(const contact_t *contact)
+void render_contact(const contact_t *contact,
+                    const render_transform_t transform)
 {
-    DrawCircle(contact->start.x, contact->start.y, 2, RED);
-    DrawCircle(contact->end.x, contact->end.y, 2, GREEN);
+    Vector2 start = world_to_screen(transform, contact->start);
+    Vector2 end = world_to_screen(transform, contact->end);
+    DrawCircle(start.x, start.y, 2, RED);
+    DrawCircle(end.x, end.y, 2, GREEN);
 
-    DrawLine(contact->start.x, contact->start.y,
-             contact->start.x + contact->normal.x * contact->depth,
-             contact->start.y + contact->normal.y * contact->depth, RED);
+    DrawLine(start.x, start.y,
+             start.x + contact->normal.x * contact->depth * transform.scale,
+             start.y + contact->normal.y * contact->depth * transform.scale,
+             RED);
 }
 
 void render_app_state(const app_state_t state)
@@ -137,16 +193,18 @@ void render_app_state(const app_state_t state)
 
 void render(const app_t *app)
 {
+    const render_transform_t transform = render_get_transform(app->world);
+
     BeginDrawing();
     ClearBackground(BLACK);
 
-    render_table(app->world->table, &app->textures);
+    render_table(app->world->table, &app->textures, transform);
     for (int i = 0; i < app->world->balls_count; i++) {
-        render_ball(&app->world->balls[i], &app->textures);
+        render_ball(&app->world->balls[i], &app->textures, transform);
     }
 
     if (app->shot != NULL) {
-        render_shot(&app->world->balls[0], app->shot);
+        render_shot(&app->world->balls[0], app->shot, transform);
     }
 
     render_app_state(app->state);
