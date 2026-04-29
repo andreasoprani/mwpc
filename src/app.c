@@ -193,6 +193,7 @@ void app_apply_shot(app_t *app)
         return;
 
     app->world->gravity_enabled = true;
+    app->shots_count++;
 
     ball_t *ball = &app->world->balls[0];
 

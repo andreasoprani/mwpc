@@ -1,3 +1,4 @@
+#include "physics/constants.h"
 #include "physics/table.h"
 #include "textures.h"
 
@@ -8,6 +9,7 @@
 #include "raymath.h"
 #include "render.h"
 #include <stdio.h>
+#include <string.h>
 
 #define WALL_COLOR WHITE
 
@@ -19,7 +21,8 @@ typedef struct render_transform {
 static render_transform_t render_get_transform(const world_t *world)
 {
     const float padding = TABLE_H_PAD;
-    const float available_width = fmaxf(1.0f, GetScreenWidth() - 2.0f * padding);
+    const float available_width =
+        fmaxf(1.0f, GetScreenWidth() - 2.0f * padding);
     const float available_height =
         fmaxf(1.0f, GetScreenHeight() - 2.0f * padding);
 
@@ -34,8 +37,8 @@ static render_transform_t render_get_transform(const world_t *world)
     };
 
     return (render_transform_t) {
-        .offset = Vector2Subtract(
-            table_screen_origin, Vector2Scale(world->table.origin, scale)),
+        .offset = Vector2Subtract(table_screen_origin,
+                                  Vector2Scale(world->table.origin, scale)),
         .scale = scale,
     };
 }
@@ -43,7 +46,8 @@ static render_transform_t render_get_transform(const world_t *world)
 static Vector2 world_to_screen(render_transform_t transform,
                                const Vector2 position)
 {
-    return Vector2Add(transform.offset, Vector2Scale(position, transform.scale));
+    return Vector2Add(transform.offset,
+                      Vector2Scale(position, transform.scale));
 }
 
 Vector2 render_screen_to_world(const world_t *world, Vector2 screen_position)
@@ -114,27 +118,23 @@ void render_shot(const ball_t *ball, const shot_t *shot,
     DrawLine(line_start.x, line_start.y, line_end.x, line_end.y, WHITE);
 }
 
-void render_contact(const contact_t *contact,
-                    const render_transform_t transform)
+void render_score(const unsigned int shots_count)
 {
-    Vector2 start = world_to_screen(transform, contact->start);
-    Vector2 end = world_to_screen(transform, contact->end);
-    DrawCircle(start.x, start.y, 2, RED);
-    DrawCircle(end.x, end.y, 2, GREEN);
-
-    DrawLine(start.x, start.y,
-             start.x + contact->normal.x * contact->depth * transform.scale,
-             start.y + contact->normal.y * contact->depth * transform.scale,
-             RED);
+    const float score_font_size = 20;
+    char score_text[32];
+    snprintf(score_text, sizeof(score_text), "Shots: %u", shots_count);
+    DrawText(score_text, 5, 5, score_font_size, WHITE);
 }
 
-void render_app_state(const app_state_t state)
+void render_app_state(const app_state_t state, const unsigned int shots_count)
 {
     if (state == APP_STATE_RUNNING)
         return;
 
     char *main_text = "";
     char *run_text = "";
+    char shots_text[32];
+    bool display_shots = false;
     switch (state) {
     case APP_STATE_MENU:
         main_text = "Welcome to Milky Way Pool Club!";
@@ -149,30 +149,42 @@ void render_app_state(const app_state_t state)
     case APP_STATE_WIN:
         main_text = "YOU WIN";
         run_text = "Press SPACE to restart";
+        snprintf(shots_text, sizeof(shots_text), "Shots: %u", shots_count);
+        display_shots = true;
         break;
     case APP_STATE_LOSE:
         main_text = "GAME OVER";
         run_text = "Press SPACE to restart";
+        snprintf(shots_text, sizeof(shots_text), "Shots: %u", shots_count);
+        display_shots = true;
         break;
     }
 
     const float main_font_size = 30;
     const float keys_font_size = 20;
     const float main_spacing = 3;
-    const float keys_spacing = 2;
+    const float small_texts_spacing = 2;
+    const float v_small_texts_spacing = display_shots ? 10 : 0;
 
     const Vector2 center =
         (Vector2) {GetScreenWidth() / 2, GetScreenHeight() / 2};
 
     Vector2 main_text_size = MeasureTextEx(GetFontDefault(), main_text,
                                            main_font_size, main_spacing);
-    Vector2 run_text_size =
-        MeasureTextEx(GetFontDefault(), run_text, keys_font_size, keys_spacing);
+    Vector2 run_text_size = MeasureTextEx(GetFontDefault(), run_text,
+                                          keys_font_size, small_texts_spacing);
+    Vector2 shots_text_size = MeasureTextEx(
+        GetFontDefault(), shots_text, keys_font_size, small_texts_spacing);
 
     const float padding = 50;
 
-    float rw = fmaxf(main_text_size.x, run_text_size.x) + 2 * padding;
-    float rh = main_text_size.y + run_text_size.y + 3 * padding;
+    float rw =
+        fmaxf(main_text_size.x, fmaxf(run_text_size.x, shots_text_size.x)) +
+        2 * padding;
+    float rh =
+        main_text_size.y + run_text_size.y +
+        (display_shots ? (shots_text_size.y + v_small_texts_spacing) : 0) +
+        3 * padding;
     float r_outline = 2;
 
     DrawRectangle(center.x - (rw + r_outline) / 2,
@@ -188,7 +200,15 @@ void render_app_state(const app_state_t state)
     DrawTextEx(GetFontDefault(), run_text,
                (Vector2) {center.x - run_text_size.x / 2,
                           center.y - rh / 2 + 2 * padding + main_text_size.y},
-               keys_font_size, keys_spacing, WHITE);
+               keys_font_size, small_texts_spacing, WHITE);
+
+    if (display_shots)
+        DrawTextEx(GetFontDefault(), shots_text,
+                   (Vector2) {center.x - shots_text_size.x / 2,
+                              center.y - rh / 2 + 2 * padding +
+                                  main_text_size.y + v_small_texts_spacing +
+                                  run_text_size.y},
+                   keys_font_size, small_texts_spacing, WHITE);
 }
 
 void render(const app_t *app)
@@ -207,7 +227,9 @@ void render(const app_t *app)
         render_shot(&app->world->balls[0], app->shot, transform);
     }
 
-    render_app_state(app->state);
+    render_score(app->shots_count);
+
+    render_app_state(app->state, app->shots_count);
 
     EndDrawing();
 }

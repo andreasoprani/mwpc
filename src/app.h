@@ -22,6 +22,7 @@ typedef struct app {
     textures_t textures;
 
     shot_t *shot;
+    unsigned int shots_count;
 
     int window_width;
     int window_height;

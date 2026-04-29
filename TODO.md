@@ -17,7 +17,7 @@
 - [x] build for web
 - [x] remove debug mode
 - [x] show full screen on web
-- [ ] auto-set gravity on first shot and remove G to toggle
+- [x] auto-set gravity on first shot and remove G to toggle
 - [ ] shots count in win screen
 - [ ] on shot, display click point and offset to guide
 - [ ] trajectories
