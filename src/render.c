@@ -1,10 +1,8 @@
 #include "physics/table.h"
 #include "textures.h"
-#define RAYGUI_IMPLEMENTATION
 
 #include "app.h"
 #include "physics/shot.h"
-#include "raygui.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "render.h"
