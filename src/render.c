@@ -125,7 +125,6 @@ void render_app_state(const app_state_t state)
 
     char *main_text = "";
     char *run_text = "";
-    char *exit_text = "Press ESC to exit";
     switch (state) {
     case APP_STATE_MENU:
         main_text = "Welcome to Milky Way Pool Club!";
@@ -151,7 +150,6 @@ void render_app_state(const app_state_t state)
     const float keys_font_size = 20;
     const float main_spacing = 3;
     const float keys_spacing = 2;
-    const float keys_v_spacing = 10;
 
     const Vector2 center =
         (Vector2) {GetScreenWidth() / 2, GetScreenHeight() / 2};
@@ -160,16 +158,11 @@ void render_app_state(const app_state_t state)
                                            main_font_size, main_spacing);
     Vector2 run_text_size =
         MeasureTextEx(GetFontDefault(), run_text, keys_font_size, keys_spacing);
-    Vector2 exit_text_size = MeasureTextEx(GetFontDefault(), exit_text,
-                                           keys_font_size, keys_spacing);
 
     const float padding = 50;
 
-    float rw =
-        fmaxf(main_text_size.x, fmaxf(run_text_size.x, exit_text_size.x)) +
-        2 * padding;
-    float rh = main_text_size.y + run_text_size.y + exit_text_size.y +
-               keys_v_spacing + 3 * padding;
+    float rw = fmaxf(main_text_size.x, run_text_size.x) + 2 * padding;
+    float rh = main_text_size.y + run_text_size.y + 3 * padding;
     float r_outline = 2;
 
     DrawRectangle(center.x - (rw + r_outline) / 2,
@@ -185,11 +178,6 @@ void render_app_state(const app_state_t state)
     DrawTextEx(GetFontDefault(), run_text,
                (Vector2) {center.x - run_text_size.x / 2,
                           center.y - rh / 2 + 2 * padding + main_text_size.y},
-               keys_font_size, keys_spacing, WHITE);
-    DrawTextEx(GetFontDefault(), exit_text,
-               (Vector2) {center.x - exit_text_size.x / 2,
-                          center.y - rh / 2 + 2 * padding + main_text_size.y +
-                              keys_v_spacing + run_text_size.y},
                keys_font_size, keys_spacing, WHITE);
 }
 

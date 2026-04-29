@@ -94,27 +94,20 @@ void running_frame(app_t *app)
     }
 }
 
-int pause_frame(app_t *app)
+void pause_frame(app_t *app)
 {
     if (app->input.key_space_pressed) {
         app->state = APP_STATE_RUNNING;
     }
-    if (app->input.key_esc_pressed) {
-        return 1;
-    }
-    return 0;
 }
 
-int end_game_frame(app_t *app)
+void end_game_frame(app_t *app)
 {
-    if (app->input.key_esc_pressed) {
-        return 1;
-    } else if (app->input.key_space_pressed) {
+    if (app->input.key_space_pressed) {
         app->state = APP_STATE_RUNNING;
         free(app->world);
         app->world = world_create();
     }
-    return 0;
 }
 
 int app_frame(app_t *app)
@@ -126,13 +119,11 @@ int app_frame(app_t *app)
         break;
     case APP_STATE_MENU:
     case APP_STATE_PAUSED:
-        if (pause_frame(app))
-            return 1;
+        pause_frame(app);
         break;
     case APP_STATE_WIN:
     case APP_STATE_LOSE:
-        if (end_game_frame(app))
-            return 1;
+        end_game_frame(app);
         break;
     }
 

@@ -27,6 +27,10 @@ web:
 		--shell-file $(RAYLIB_WEB)/minshell.html \
 		--preload-file textures
 
+wr:
+	make web
+	cd $(WEB_OUT) && uv run python -m http.server 8080
+
 clean:
 	rm $(APPNAME)
 

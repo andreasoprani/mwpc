@@ -10,14 +10,7 @@ static app_t *app = NULL;
 
 static void update_frame(void)
 {
-    const int exit_code = app_frame(app);
-
-#if !defined(PLATFORM_WEB)
-    if (exit_code) {
-        CloseWindow();
-        exit(0);
-    }
-#endif
+    app_frame(app);
 }
 
 int main(void)
