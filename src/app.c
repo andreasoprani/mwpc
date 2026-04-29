@@ -14,13 +14,6 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
-void toggle_debug(app_t *app)
-{
-    const bool curr_debug = app->debug;
-    app->debug = !curr_debug;
-    printf("Debug mode: %s\n", app->debug ? "ON" : "OFF");
-}
-
 app_t *app_setup()
 {
     app_t *app = malloc(sizeof(app_t));
@@ -30,7 +23,6 @@ app_t *app_setup()
     input_reset(&app->input);
     app->shot = NULL;
 
-    app->debug = false;
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Milky Way Pool Club");
 
     SetExitKey(KEY_NULL);
@@ -54,9 +46,6 @@ void apply_game_inputs(app_t *app)
     if (app->input.key_g_pressed)
         world_toggle_gravity(app->world);
 
-    if (app->input.key_d_pressed)
-        toggle_debug(app);
-
     if (app->input.mouse_left_pressed)
         app_init_shot(app);
 
@@ -76,7 +65,7 @@ void running_frame(app_t *app)
 
     apply_game_inputs(app);
 
-    if ((!app->debug || app->input.key_space_pressed) && app->shot == NULL) {
+    if (app->shot == NULL) {
         world_update(app->world, dt);
     }
 

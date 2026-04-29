@@ -21,8 +21,6 @@ typedef struct app {
     input_t input;
     textures_t textures;
 
-    bool debug;
-
     shot_t *shot;
 
 } app_t;

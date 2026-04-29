@@ -8,8 +8,7 @@
 #include "render.h"
 #include <stdio.h>
 
-#define DEBUG_COLLISION_WALL_COLOR RED
-#define DEBUG_NORMAL_WALL_COLOR WHITE
+#define WALL_COLOR WHITE
 
 void draw_circle_texture(const Texture2D tex, const Vector2 position,
                          const float radius, const float rotation)
@@ -26,65 +25,29 @@ void draw_circle_texture(const Texture2D tex, const Vector2 position,
     DrawTexturePro(tex, source, dest, origin, rotation * RAD2DEG, WHITE);
 }
 
-void render_table(const table_t table, const textures_t *textures,
-                  const bool debug)
+void render_table(const table_t table, const textures_t *textures)
 {
     for (int h = 0; h < ARR_LEN(table.holes); h++) {
         hole_t hole = table.holes[h];
 
-        if (debug) {
-            DrawCircleLines((int) hole.position.x, (int) hole.position.y,
-                            (int) hole.radius, RED);
-        } else {
-            draw_circle_texture(textures->hole, hole.position, hole.radius,
-                                hole.rotation);
-        }
+        draw_circle_texture(textures->hole, hole.position, hole.radius,
+                            hole.rotation);
     }
 
     for (int i = 0; i < ARR_LEN(table.walls); i++) {
         wall_t wall = table.walls[i];
-        Color color = (debug && wall.is_colliding) ? DEBUG_COLLISION_WALL_COLOR
-                                                   : DEBUG_NORMAL_WALL_COLOR;
         for (int v = 0; v < ARR_LEN(wall.vertices); v++) {
             Vector2 a = wall.vertices[v];
             Vector2 b = wall.vertices[(v + 1) % ARR_LEN(wall.vertices)];
-            DrawLine((int) a.x, (int) a.y, (int) b.x, (int) b.y, color);
+            DrawLine((int) a.x, (int) a.y, (int) b.x, (int) b.y, WALL_COLOR);
         }
     }
 }
 
-void render_ball(const ball_t *ball, const textures_t *textures,
-                 const bool debug)
+void render_ball(const ball_t *ball, const textures_t *textures)
 {
     Texture2D tex = get_planet_texture(textures, ball->planet);
-
-    if (debug) {
-        DrawCircleLines(ball->position.x, ball->position.y, ball->radius, RED);
-
-        // Ball ID in the center
-        char id_text[12];
-        snprintf(id_text, sizeof(id_text), "%u", ball->planet);
-        const Font font = GetFontDefault();
-        const float font_size = 10;
-        const float spacing = 2.0f;
-        const Vector2 text_size =
-            MeasureTextEx(font, id_text, font_size, spacing);
-        const Vector2 origin = {text_size.x / 2.0f, text_size.y / 2.0f};
-        DrawTextPro(font, id_text, ball->position, origin,
-                    ball->rotation * RAD2DEG, font_size, spacing, RED);
-
-        // Rotation line
-        const Vector2 rotation_line_start = {
-            ball->position.x + 0.4f * ball->radius * cos(ball->rotation),
-            ball->position.y + 0.4f * ball->radius * sin(ball->rotation)};
-        const Vector2 rotation_line_end = {
-            ball->position.x + ball->radius * cos(ball->rotation),
-            ball->position.y + ball->radius * sin(ball->rotation)};
-        DrawLine(rotation_line_start.x, rotation_line_start.y,
-                 rotation_line_end.x, rotation_line_end.y, RED);
-    } else {
-        draw_circle_texture(tex, ball->position, ball->radius, ball->rotation);
-    }
+    draw_circle_texture(tex, ball->position, ball->radius, ball->rotation);
 }
 
 void render_shot(const ball_t *ball, const shot_t *shot)
@@ -107,15 +70,6 @@ void render_contact(const contact_t *contact)
     DrawLine(contact->start.x, contact->start.y,
              contact->start.x + contact->normal.x * contact->depth,
              contact->start.y + contact->normal.y * contact->depth, RED);
-}
-
-void render_debug_info(const app_t *app)
-{
-    for (int i = 0; i < app->world->contacts_count; i++) {
-        render_contact(&app->world->contacts[i]);
-    }
-
-    DrawText("Debug Mode ON", 5, GetScreenHeight() - 25, 20, RED);
 }
 
 void render_app_state(const app_state_t state)
@@ -186,17 +140,13 @@ void render(const app_t *app)
     BeginDrawing();
     ClearBackground(BLACK);
 
-    render_table(app->world->table, &app->textures, app->debug);
+    render_table(app->world->table, &app->textures);
     for (int i = 0; i < app->world->balls_count; i++) {
-        render_ball(&app->world->balls[i], &app->textures, app->debug);
+        render_ball(&app->world->balls[i], &app->textures);
     }
 
     if (app->shot != NULL) {
         render_shot(&app->world->balls[0], app->shot);
-    }
-
-    if (app->debug) {
-        render_debug_info(app);
     }
 
     render_app_state(app->state);

@@ -14,10 +14,12 @@
 - [x] walls -> polygons
 - [x] holes
 - [x] game loop
-- [ ] build for web
-- [ ] remove debug mode
-- [ ] auto-set gravity
+- [x] build for web
+- [x] remove debug mode
+- [ ] show full screen on web
+- [ ] auto-set gravity on first shot and remove G to toggle
 - [ ] shots count in win screen
+- [ ] on shot, display click point and offset to guide
 - [ ] trajectories
 - [ ] different starting layouts
 - [ ] render stars in the background
