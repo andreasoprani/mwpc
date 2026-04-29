@@ -25,6 +25,4 @@ void world_update(world_t *world, const float dt);
 
 void world_place_all_balls(world_t *world);
 
-void world_toggle_gravity(world_t *world);
-
 #endif

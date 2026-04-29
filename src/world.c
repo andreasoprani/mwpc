@@ -156,12 +156,6 @@ void world_update(world_t *world, const float dt)
     }
 }
 
-void world_toggle_gravity(world_t *world)
-{
-    world->gravity_enabled = !world->gravity_enabled;
-    printf("Gravity: %s\n", world->gravity_enabled ? "ON" : "OFF");
-}
-
 bool is_position_in_cone(const Vector2 position, const Vector2 apex)
 {
     Vector2 direction = Vector2Subtract(position, apex);

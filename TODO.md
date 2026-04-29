@@ -16,7 +16,7 @@
 - [x] game loop
 - [x] build for web
 - [x] remove debug mode
-- [ ] show full screen on web
+- [x] show full screen on web
 - [ ] auto-set gravity on first shot and remove G to toggle
 - [ ] shots count in win screen
 - [ ] on shot, display click point and offset to guide

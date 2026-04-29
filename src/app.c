@@ -104,9 +104,6 @@ void app_destroy(app_t *app)
 
 void apply_game_inputs(app_t *app)
 {
-    if (app->input.key_g_pressed)
-        world_toggle_gravity(app->world);
-
     if (app->input.mouse_left_pressed)
         app_init_shot(app);
 
@@ -194,6 +191,8 @@ void app_apply_shot(app_t *app)
 {
     if (app->shot == NULL)
         return;
+
+    app->world->gravity_enabled = true;
 
     ball_t *ball = &app->world->balls[0];
 
