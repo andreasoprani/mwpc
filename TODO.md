@@ -18,8 +18,8 @@
 - [x] remove debug mode
 - [x] show full screen on web
 - [x] auto-set gravity on first shot and remove G to toggle
-- [ ] shots count in win screen
-- [ ] on shot, display click point and offset to guide
+- [x] shots count in win screen
+- [x] on shot, display click point and offset to guide
 - [ ] trajectories
 - [ ] different starting layouts
 - [ ] render stars in the background
