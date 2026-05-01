@@ -26,6 +26,7 @@ typedef struct app {
 
     int window_width;
     int window_height;
+    bool resized_this_frame;
 
 } app_t;
 

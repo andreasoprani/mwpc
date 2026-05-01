@@ -17,6 +17,7 @@
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
+#define MAX_FRAME_TIME (1.0f / 30.0f)
 
 static void get_window_size(int *width, int *height)
 {
@@ -37,14 +38,14 @@ static void get_window_size(int *width, int *height)
         *height = SCREEN_HEIGHT;
 }
 
-static void resize_window_if_needed(app_t *app)
+static bool resize_window_if_needed(app_t *app)
 {
     int width;
     int height;
     get_window_size(&width, &height);
 
     if (width == app->window_width && height == app->window_height)
-        return;
+        return false;
 
 #if defined(PLATFORM_WEB)
     emscripten_set_canvas_element_size("#canvas", width, height);
@@ -57,6 +58,8 @@ static void resize_window_if_needed(app_t *app)
         free(app->shot);
         app->shot = NULL;
     }
+
+    return true;
 }
 
 app_t *app_setup()
@@ -85,6 +88,7 @@ app_t *app_setup()
 
     app->window_width = screen_width;
     app->window_height = screen_height;
+    app->resized_this_frame = false;
 
     SetExitKey(KEY_NULL);
 
@@ -119,11 +123,11 @@ void apply_game_inputs(app_t *app)
 
 void running_frame(app_t *app)
 {
-    float dt = GetFrameTime();
+    float dt = fminf(GetFrameTime(), MAX_FRAME_TIME);
 
     apply_game_inputs(app);
 
-    if (app->shot == NULL) {
+    if (app->shot == NULL && !app->resized_this_frame) {
         world_update(app->world, dt);
     }
 
@@ -159,7 +163,7 @@ void end_game_frame(app_t *app)
 
 int app_frame(app_t *app)
 {
-    resize_window_if_needed(app);
+    app->resized_this_frame = resize_window_if_needed(app);
     input_update(&app->input);
     app->input.mouse_position =
         render_screen_to_world(app->world, app->input.mouse_position);

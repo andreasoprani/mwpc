@@ -12,7 +12,7 @@
 #include <string.h>
 
 #define WALL_COLOR WHITE
-#define SHOT_START_CIRCLE_RADIUS 10
+#define SHOT_CIRCLE_RADIUS_SCALE_FACTOR 0.2
 
 typedef struct render_transform {
     Vector2 offset;
@@ -106,20 +106,24 @@ void render_ball(const ball_t *ball, const textures_t *textures,
 void render_shot(const ball_t *ball, const shot_t *shot,
                  const render_transform_t transform)
 {
-    { // Display shot start circle
-        Vector2 start_screen = world_to_screen(transform, shot->start);
-        DrawCircleLines(start_screen.x, start_screen.y,
-                        SHOT_START_CIRCLE_RADIUS, WHITE);
+    Vector2 shot_vec = shot_vector(shot);
+    Vector2 shot_dir = Vector2Normalize(shot_vec);
 
-        Vector2 shot_vec = shot_vector(shot);
-        Vector2 line_end = Vector2Subtract(shot->start, shot_vec);
-        line_end = world_to_screen(transform, line_end);
-        DrawLine(start_screen.x, start_screen.y, line_end.x, line_end.y, WHITE);
+    { // Display shot start circle
+        Vector2 circle_center = world_to_screen(transform, shot->start);
+        float circle_radius =
+            Vector2Length(shot_vec) * SHOT_CIRCLE_RADIUS_SCALE_FACTOR;
+        DrawCircleLines(circle_center.x, circle_center.y, circle_radius, WHITE);
+
+        Vector2 line_end = Vector2Subtract(
+            circle_center,
+            Vector2Scale(Vector2Normalize(shot_vec), circle_radius));
+
+        DrawLine(circle_center.x, circle_center.y, line_end.x, line_end.y,
+                 WHITE);
     }
 
     { // Display trajectory (TODO: remove when trajectories are implemented)
-        Vector2 shot_vec = shot_vector(shot);
-        Vector2 shot_dir = Vector2Normalize(shot_vec);
         Vector2 line_start =
             Vector2Add(ball->position, Vector2Scale(shot_dir, ball->radius));
 
