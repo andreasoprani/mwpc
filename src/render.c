@@ -11,9 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define WALL_COLOR WHITE
-#define SHOT_CIRCLE_RADIUS_SCALE_FACTOR 0.2
-
 typedef struct render_transform {
     Vector2 offset;
     float scale;
@@ -90,7 +87,7 @@ void render_table(const table_t table, const textures_t *textures,
             Vector2 a = world_to_screen(transform, wall.vertices[v]);
             Vector2 b = world_to_screen(
                 transform, wall.vertices[(v + 1) % ARR_LEN(wall.vertices)]);
-            DrawLine((int) a.x, (int) a.y, (int) b.x, (int) b.y, WALL_COLOR);
+            DrawLine((int) a.x, (int) a.y, (int) b.x, (int) b.y, WHITE);
         }
     }
 }
@@ -108,12 +105,19 @@ void render_shot(const ball_t *ball, const shot_t *shot,
 {
     Vector2 shot_vec = shot_vector(shot);
     Vector2 shot_dir = Vector2Normalize(shot_vec);
+    float shot_length = Vector2Length(shot_vec);
 
-    { // Display shot start circle
+    { // Display shot start circles
         Vector2 circle_center = world_to_screen(transform, shot->start);
-        float circle_radius =
-            Vector2Length(shot_vec) * SHOT_CIRCLE_RADIUS_SCALE_FACTOR;
-        DrawCircleLines(circle_center.x, circle_center.y, circle_radius, WHITE);
+        unsigned int circles = (int) (shot_length / (SHOT_MAX_LENGTH / 3)) + 1;
+        float shot_circle_radius_scale_factor = 0.5f;
+        float circle_radius;
+        for (int i = 0; i < circles; i++) {
+            circle_radius = fminf((i + 1) * SHOT_MAX_LENGTH / 3, shot_length) *
+                            shot_circle_radius_scale_factor;
+            DrawCircleLines(circle_center.x, circle_center.y, circle_radius,
+                            WHITE);
+        }
 
         Vector2 line_end = Vector2Subtract(
             circle_center,
