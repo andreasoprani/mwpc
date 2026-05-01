@@ -174,18 +174,18 @@ bool is_position_valid(const world_t *world, const Vector2 position,
     // TODO check walls, could be useful to use the same logic as contacts (also
     // for balls) but it requires initializing the ball to create contact
 
-    return is_position_in_cone(position,
-                               table_get_position(world->table, BALLS_APEX));
+    (void) world;
+    return is_position_in_cone(position, BALLS_APEX);
 }
 
 void world_place_all_balls(world_t *world)
 {
     const float balls_gap = BALLS_GAP;
 
-    world->balls[world->balls_count++] = ball_create(
-        EARTH, table_get_position(world->table, CONTROLLED_BALL_POSITION));
+    world->balls[world->balls_count++] =
+        ball_create(EARTH, CONTROLLED_BALL_POSITION);
 
-    const Vector2 apex_position = table_get_position(world->table, BALLS_APEX);
+    const Vector2 apex_position = BALLS_APEX;
 
     static const planet_t other_planets[] = {MERCURY, VENUS,  MARS,    JUPITER,
                                              SATURN,  URANUS, NEPTUNE, PLUTO};
@@ -202,8 +202,7 @@ void world_place_all_balls(world_t *world)
         planet_t planet = other_planets[i];
         float planet_radius = get_planet_radius(planet);
 
-        Vector2 best_position =
-            table_get_position(world->table, (Vector2) {0.5f, 0.0f});
+        Vector2 best_position = {TABLE_WIDTH * 0.5f, 0.0f};
         float best_distance = Vector2DistanceSqr(best_position, apex_position);
 
         // Positions between balls

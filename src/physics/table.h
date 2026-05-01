@@ -25,12 +25,8 @@ typedef struct table {
 
     hole_t holes[6]; // clock-wise from top-left
 
-
 } table_t;
 
 void table_setup(table_t *table);
-
-Vector2 table_get_position(const table_t table,
-                           const Vector2 relative_position);
 
 #endif

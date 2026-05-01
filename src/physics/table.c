@@ -6,13 +6,13 @@
 
 void table_setup(table_t *table)
 {
-    const float width = WORLD_TABLE_WIDTH;
-    const float height = WORLD_TABLE_HEIGHT;
+    const float width = TABLE_WIDTH;
+    const float height = TABLE_HEIGHT;
 
     // Table boundary anchor points (corners and mid-edges)
     const Vector2 anchors[6] = {
-        {0, 0},             // TL
-        {width, 0},         // TR
+        {0, 0},              // TL
+        {width, 0},          // TR
         {width, height / 2}, // MR
         {width, height},     // BR
         {0, height},         // BL
@@ -89,13 +89,6 @@ void table_setup(table_t *table)
             .is_colliding = false,
         };
     }
-}
-
-Vector2 table_get_position(const table_t table, const Vector2 relative_position)
-{
-    (void) table;
-    return (Vector2) {relative_position.x * WORLD_TABLE_WIDTH,
-                      relative_position.y * WORLD_TABLE_HEIGHT};
 }
 
 void get_wall_vertices(const int wall_n, const hole_t hole0, const hole_t hole1,
