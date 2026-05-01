@@ -4,7 +4,7 @@
 #include "physics/constants.h"
 #include "raylib.h"
 
-#define TABLE_H_PAD 100
+#define TABLE_H_PAD_RATIO 0.05f
 
 #define CONTROLLED_BALL_POSITION                                               \
     (Vector2){TABLE_WIDTH * 0.5f, TABLE_HEIGHT * 0.75f}

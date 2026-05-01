@@ -18,7 +18,7 @@ typedef struct render_transform {
 
 static render_transform_t render_get_transform(const world_t *world)
 {
-    const float padding = TABLE_H_PAD;
+    const float padding = GetScreenHeight() * TABLE_H_PAD_RATIO;
     const float available_width =
         fmaxf(1.0f, GetScreenWidth() - 2.0f * padding);
     const float available_height =
