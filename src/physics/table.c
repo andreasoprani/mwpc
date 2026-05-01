@@ -4,20 +4,19 @@
 #include <math.h>
 #include <stdlib.h>
 
-void table_setup(table_t *table, Vector2 origin, float width, float height)
+void table_setup(table_t *table, float width, float height)
 {
-    table->origin = origin;
     table->width = width;
     table->height = height;
 
     // Table boundary anchor points (corners and mid-edges)
     const Vector2 anchors[6] = {
-        {origin.x, origin.y},                      // TL
-        {origin.x + width, origin.y},              // TR
-        {origin.x + width, origin.y + height / 2}, // MR
-        {origin.x + width, origin.y + height},     // BR
-        {origin.x, origin.y + height},             // BL
-        {origin.x, origin.y + height / 2},         // ML
+        {0, 0},             // TL
+        {width, 0},         // TR
+        {width, height / 2}, // MR
+        {width, height},     // BR
+        {0, height},         // BL
+        {0, height / 2},     // ML
     };
 
     // Per-anchor outward normal = average of the two adjacent wall normals
@@ -94,8 +93,8 @@ void table_setup(table_t *table, Vector2 origin, float width, float height)
 
 Vector2 table_get_position(const table_t table, const Vector2 relative_position)
 {
-    return (Vector2) {table.origin.x + relative_position.x * table.width,
-                      table.origin.y + relative_position.y * table.height};
+    return (Vector2) {relative_position.x * table.width,
+                      relative_position.y * table.height};
 }
 
 void get_wall_vertices(const int wall_n, const hole_t hole0, const hole_t hole1,

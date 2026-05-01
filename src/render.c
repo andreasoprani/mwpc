@@ -35,8 +35,7 @@ static render_transform_t render_get_transform(const world_t *world)
     };
 
     return (render_transform_t) {
-        .offset = Vector2Subtract(table_screen_origin,
-                                  Vector2Scale(world->table.origin, scale)),
+        .offset = table_screen_origin,
         .scale = scale,
     };
 }

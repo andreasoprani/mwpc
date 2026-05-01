@@ -25,12 +25,11 @@ typedef struct table {
 
     hole_t holes[6]; // clock-wise from top-left
 
-    Vector2 origin; // top-left corner of the playing area
     float width;
     float height;
 } table_t;
 
-void table_setup(table_t *table, Vector2 origin, float width, float height);
+void table_setup(table_t *table, float width, float height);
 
 Vector2 table_get_position(const table_t table,
                            const Vector2 relative_position);

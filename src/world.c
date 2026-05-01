@@ -24,8 +24,7 @@ world_t *world_create()
 
     world->gravity_enabled = false;
 
-    table_setup(&world->table, Vector2Zero(), WORLD_TABLE_WIDTH,
-                WORLD_TABLE_HEIGHT);
+    table_setup(&world->table, WORLD_TABLE_WIDTH, WORLD_TABLE_HEIGHT);
 
     world_place_all_balls(world);
 
