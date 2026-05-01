@@ -4,10 +4,10 @@
 #include <math.h>
 #include <stdlib.h>
 
-void table_setup(table_t *table, float width, float height)
+void table_setup(table_t *table)
 {
-    table->width = width;
-    table->height = height;
+    const float width = WORLD_TABLE_WIDTH;
+    const float height = WORLD_TABLE_HEIGHT;
 
     // Table boundary anchor points (corners and mid-edges)
     const Vector2 anchors[6] = {
@@ -93,8 +93,9 @@ void table_setup(table_t *table, float width, float height)
 
 Vector2 table_get_position(const table_t table, const Vector2 relative_position)
 {
-    return (Vector2) {relative_position.x * table.width,
-                      relative_position.y * table.height};
+    (void) table;
+    return (Vector2) {relative_position.x * WORLD_TABLE_WIDTH,
+                      relative_position.y * WORLD_TABLE_HEIGHT};
 }
 
 void get_wall_vertices(const int wall_n, const hole_t hole0, const hole_t hole1,

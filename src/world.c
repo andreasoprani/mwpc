@@ -12,9 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define WORLD_TABLE_HEIGHT (720.0f - 2.0f * TABLE_H_PAD)
-#define WORLD_TABLE_WIDTH (WORLD_TABLE_HEIGHT / TABLE_RATIO)
-
 world_t *world_create()
 {
     world_t *world = (world_t *) malloc(sizeof(world_t));
@@ -24,7 +21,7 @@ world_t *world_create()
 
     world->gravity_enabled = false;
 
-    table_setup(&world->table, WORLD_TABLE_WIDTH, WORLD_TABLE_HEIGHT);
+    table_setup(&world->table);
 
     world_place_all_balls(world);
 

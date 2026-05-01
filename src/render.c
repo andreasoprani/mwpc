@@ -24,11 +24,12 @@ static render_transform_t render_get_transform(const world_t *world)
     const float available_height =
         fmaxf(1.0f, GetScreenHeight() - 2.0f * padding);
 
-    const float scale = fminf(available_width / world->table.width,
-                              available_height / world->table.height);
+    (void) world;
+    const float scale = fminf(available_width / WORLD_TABLE_WIDTH,
+                              available_height / WORLD_TABLE_HEIGHT);
 
-    const Vector2 table_screen_size = {world->table.width * scale,
-                                       world->table.height * scale};
+    const Vector2 table_screen_size = {WORLD_TABLE_WIDTH * scale,
+                                       WORLD_TABLE_HEIGHT * scale};
     const Vector2 table_screen_origin = {
         (GetScreenWidth() - table_screen_size.x) / 2.0f,
         (GetScreenHeight() - table_screen_size.y) / 2.0f,
