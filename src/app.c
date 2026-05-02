@@ -1,4 +1,5 @@
 #include "app.h"
+#include "constants.h"
 #include "input.h"
 #include "physics/ball.h"
 #include "physics/planets.h"
@@ -14,15 +15,11 @@
 #include <emscripten/html5.h>
 #endif
 
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
-#define MAX_FRAME_TIME (1.0f / 30.0f)
-
 static void get_window_size(int *width, int *height)
 {
 #if defined(PLATFORM_WEB)
-    double css_width = SCREEN_WIDTH;
-    double css_height = SCREEN_HEIGHT;
+    double css_width = DEFAULT_SCREEN_WIDTH;
+    double css_height = DEFAULT_SCREEN_HEIGHT;
     emscripten_get_element_css_size("#canvas", &css_width, &css_height);
     *width = (int) css_width;
     *height = (int) css_height;
@@ -32,9 +29,9 @@ static void get_window_size(int *width, int *height)
 #endif
 
     if (*width < 1)
-        *width = SCREEN_WIDTH;
+        *width = DEFAULT_SCREEN_WIDTH;
     if (*height < 1)
-        *height = SCREEN_HEIGHT;
+        *height = DEFAULT_SCREEN_HEIGHT;
 }
 
 static bool resize_window_if_needed(app_t *app)
@@ -66,12 +63,13 @@ app_t *app_setup()
     app_t *app = malloc(sizeof(app_t));
 
     app->state = APP_STATE_MENU;
+    app->physics_time_accumulator = 0.0f;
 
     input_reset(&app->input);
     app->shot = NULL;
 
-    int screen_width = SCREEN_WIDTH;
-    int screen_height = SCREEN_HEIGHT;
+    int screen_width = DEFAULT_SCREEN_WIDTH;
+    int screen_height = DEFAULT_SCREEN_HEIGHT;
 
 #if !defined(PLATFORM_WEB)
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -92,7 +90,7 @@ app_t *app_setup()
     SetExitKey(KEY_NULL);
 
     textures_setup(&app->textures);
-    SetTargetFPS(120);
+    SetTargetFPS(PHYSICS_FRAME_RATE);
 
     app->world = world_create();
 
@@ -127,7 +125,13 @@ void running_frame(app_t *app)
     apply_game_inputs(app);
 
     if (app->shot == NULL && !app->resized_this_frame) {
-        world_update(app->world, dt);
+        app->physics_time_accumulator += dt;
+        while (app->physics_time_accumulator >= PHYSICS_TIME_STEP) {
+            world_update(app->world, PHYSICS_TIME_STEP);
+            app->physics_time_accumulator -= PHYSICS_TIME_STEP;
+        }
+    } else {
+        app->physics_time_accumulator = 0.0f;
     }
 
     bool earth_ball_exists = false;
@@ -157,6 +161,7 @@ void end_game_frame(app_t *app)
         app->state = APP_STATE_RUNNING;
         free(app->world);
         app->world = world_create();
+        app->physics_time_accumulator = 0.0f;
     }
 }
 
@@ -197,6 +202,7 @@ void app_apply_shot(app_t *app)
 
     app->world->gravity_enabled = true;
     app->shots_count++;
+    app->physics_time_accumulator = 0.0f;
 
     ball_t *ball = &app->world->balls[0];
 

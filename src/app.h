@@ -16,6 +16,7 @@ typedef enum {
 
 typedef struct app {
     app_state_t state;
+    float physics_time_accumulator;
 
     world_t *world;
     input_t input;
