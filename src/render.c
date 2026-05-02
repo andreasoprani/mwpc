@@ -1,13 +1,14 @@
 #include "physics/constants.h"
+#include "physics/planets.h"
 #include "physics/table.h"
 #include "textures.h"
 
 #include "app.h"
 #include "constants.h"
-#include "physics/shot.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "render.h"
+#include "shot.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -103,13 +104,12 @@ void render_ball(const ball_t *ball, const textures_t *textures,
 void render_shot(const ball_t *ball, const shot_t *shot,
                  const render_transform_t transform)
 {
-    Vector2 shot_vec = shot_vector(shot);
-    Vector2 shot_dir = Vector2Normalize(shot_vec);
-    float shot_length = Vector2Length(shot_vec);
-
     { // Display shot start circles
+        Vector2 shot_vec = shot_vector(shot);
+        float shot_length = Vector2Length(shot_vec);
         Vector2 circle_center = world_to_screen(transform, shot->start);
         unsigned int circles = (int) (shot_length / (SHOT_MAX_LENGTH / 3)) + 1;
+        // TODO: make the circle radius a fraction of the screen size
         float shot_circle_radius_scale_factor = 0.5f;
         float circle_radius;
         for (int i = 0; i < circles; i++) {
@@ -127,16 +127,16 @@ void render_shot(const ball_t *ball, const shot_t *shot,
                  WHITE);
     }
 
-    { // Display trajectory (TODO: remove when trajectories are implemented)
-        Vector2 line_start =
-            Vector2Add(ball->position, Vector2Scale(shot_dir, ball->radius));
-
-        Vector2 line_end = Vector2Add(line_start, shot_vec);
-
-        line_start = world_to_screen(transform, line_start);
-        line_end = world_to_screen(transform, line_end);
-
-        DrawLine(line_start.x, line_start.y, line_end.x, line_end.y, WHITE);
+    { // Display trajectories
+        for (int t = 0; t < ARR_LEN(shot->trajectories); t++) {
+            const trajectory_t *trajectory = &shot->trajectories[t];
+            const Color color = trajectory->planet == EARTH ? RED : WHITE;
+            for (int i = 0; i < trajectory->positions_length; i++) {
+                Vector2 position =
+                    world_to_screen(transform, trajectory->positions[i]);
+                DrawCircle(position.x, position.y, 1, color);
+            }
+        }
     }
 }
 

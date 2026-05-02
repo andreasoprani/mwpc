@@ -6,6 +6,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "render.h"
+#include "shot.h"
 #include "textures.h"
 #include "world.h"
 #include <stdio.h>
@@ -112,7 +113,7 @@ void apply_game_inputs(app_t *app)
         app_apply_shot(app);
 
     if (app->shot != NULL)
-        app->shot->end = app->input.mouse_position;
+        shot_update_end(app->shot, app->input.mouse_position);
 
     if (app->input.key_esc_pressed)
         app->state = APP_STATE_PAUSED;
@@ -124,7 +125,9 @@ void running_frame(app_t *app)
 
     apply_game_inputs(app);
 
-    if (app->shot == NULL && !app->resized_this_frame) {
+    if (app->shot != NULL) {
+        shot_compute_trajectories(app->shot, app->world);
+    } else if (!app->resized_this_frame) {
         app->physics_time_accumulator += dt;
         while (app->physics_time_accumulator >= PHYSICS_TIME_STEP) {
             world_update(app->world, PHYSICS_TIME_STEP);
@@ -200,17 +203,10 @@ void app_apply_shot(app_t *app)
     if (app->shot == NULL)
         return;
 
-    app->world->gravity_enabled = true;
+    shot_apply(app->shot, app->world);
+
     app->shots_count++;
     app->physics_time_accumulator = 0.0f;
-
-    ball_t *ball = &app->world->balls[0];
-
-    Vector2 shot_vec = shot_vector(app->shot);
-
-    ball_reset_impulses(ball);
-    ball_apply_impulse_linear(ball,
-                              Vector2Scale(shot_vec, SHOT_IMPULSE_MULTIPLIER));
 
     free(app->shot);
     app->shot = NULL;

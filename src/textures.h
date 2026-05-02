@@ -4,9 +4,6 @@
 #include "physics/ball.h"
 #include "raylib.h"
 
-// TODO: hardcode based on planet_t
-#define NUM_PLANETS 9
-
 typedef struct textures {
     Texture2D planets[NUM_PLANETS];
     Texture2D hole;

@@ -2,7 +2,7 @@
 #define APP_H
 
 #include "input.h"
-#include "physics/shot.h"
+#include "shot.h"
 #include "textures.h"
 #include "world.h"
 
