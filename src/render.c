@@ -109,12 +109,12 @@ void render_shot(const ball_t *ball, const shot_t *shot,
         float shot_length = Vector2Length(shot_vec);
         Vector2 circle_center = world_to_screen(transform, shot->start);
         unsigned int circles = (int) (shot_length / (SHOT_MAX_LENGTH / 3)) + 1;
-        // TODO: make the circle radius a fraction of the screen size
-        float shot_circle_radius_scale_factor = 0.5f;
         float circle_radius;
         for (int i = 0; i < circles; i++) {
-            circle_radius = fminf((i + 1) * SHOT_MAX_LENGTH / 3, shot_length) *
-                            shot_circle_radius_scale_factor;
+            circle_radius = SHOT_MAX_RADIUS_HEIGHT_FRACTION *
+                            GetScreenHeight() *
+                            fminf((i + 1) * SHOT_MAX_LENGTH / 3, shot_length) /
+                            SHOT_MAX_LENGTH;
             DrawCircleLines(circle_center.x, circle_center.y, circle_radius,
                             WHITE);
         }
