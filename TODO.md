@@ -20,7 +20,10 @@
 - [x] auto-set gravity on first shot and remove G to toggle
 - [x] shots count in win screen
 - [x] on shot, display click point and offset to guide
-- [ ] trajectories
+- [x] trajectories
+- [x] fix shots_count update
+- [ ] better shot circle
 - [ ] different starting layouts
 - [ ] render stars in the background
+- [ ] credits
 - [ ] render nice walls (?)

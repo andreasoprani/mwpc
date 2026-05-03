@@ -59,15 +59,20 @@ static bool resize_window_if_needed(app_t *app)
     return true;
 }
 
+void new_game_setup(app_t *app)
+{
+    input_reset(&app->input);
+    app->world = world_create();
+    app->physics_time_accumulator = 0.0f;
+    app->shots_count = 0;
+    app->shot = NULL;
+}
+
 app_t *app_setup()
 {
     app_t *app = malloc(sizeof(app_t));
 
     app->state = APP_STATE_MENU;
-    app->physics_time_accumulator = 0.0f;
-
-    input_reset(&app->input);
-    app->shot = NULL;
 
     int screen_width = DEFAULT_SCREEN_WIDTH;
     int screen_height = DEFAULT_SCREEN_HEIGHT;
@@ -93,7 +98,7 @@ app_t *app_setup()
     textures_setup(&app->textures);
     SetTargetFPS(PHYSICS_FRAME_RATE);
 
-    app->world = world_create();
+    new_game_setup(app);
 
     return app;
 }
@@ -163,8 +168,7 @@ void end_game_frame(app_t *app)
     if (app->input.key_space_pressed) {
         app->state = APP_STATE_RUNNING;
         free(app->world);
-        app->world = world_create();
-        app->physics_time_accumulator = 0.0f;
+        new_game_setup(app);
     }
 }
 
