@@ -12,6 +12,8 @@ typedef enum {
     APP_STATE_PAUSED,
     APP_STATE_WIN,
     APP_STATE_LOSE,
+    APP_STATE_CREDITS_PAUSED,
+    APP_STATE_CREDITS_MAIN,
 } app_state_t;
 
 typedef struct app {

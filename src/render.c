@@ -153,84 +153,111 @@ void render_app_state(const app_state_t state, const unsigned int shots_count)
     if (state == APP_STATE_RUNNING)
         return;
 
-    char *main_text = "";
-    char *run_text = "";
+    char *title = "";
+    char *body = "";
     char shots_text[32];
     bool display_shots = false;
     switch (state) {
     case APP_STATE_MENU:
-        main_text = "Welcome to Milky Way Pool Club!";
-        run_text = "Press SPACE to start";
+        title = "Welcome to Milky Way Pool Club!";
+        body = "[SPACE]: start\n"
+               "[C]: credits\n"
+               "\nIn game:\n"
+               "[LEFT CLICK]: init/release shot\n"
+               "[ESC]: pause";
         break;
     case APP_STATE_RUNNING:
         break;
     case APP_STATE_PAUSED:
-        main_text = "PAUSE";
-        run_text = "Press SPACE to resume";
+        title = "PAUSE";
+        body = "[SPACE]: resume\n"
+               "\nIn game:\n"
+               "[LEFT CLICK]: init/release shot\n"
+               "[ESC]: pause";
         break;
     case APP_STATE_WIN:
-        main_text = "YOU WIN";
-        run_text = "Press SPACE to restart";
+        title = "YOU WIN";
+        body = "[SPACE]: play again\n"
+               "[C]: credits\n"
+               "\nIn game:\n"
+               "[LEFT CLICK]: init/release shot\n"
+               "[ESC]: pause";
         snprintf(shots_text, sizeof(shots_text), "Shots: %u", shots_count);
         display_shots = true;
         break;
     case APP_STATE_LOSE:
-        main_text = "GAME OVER";
-        run_text = "Press SPACE to restart";
+        title = "GAME OVER";
+        body = "[SPACE]: play again\n"
+               "[C]: credits\n"
+               "\nIn game:\n"
+               "[LEFT CLICK]: init/release shot\n"
+               "[ESC]: pause";
         snprintf(shots_text, sizeof(shots_text), "Shots: %u", shots_count);
         display_shots = true;
+        break;
+    case APP_STATE_CREDITS_PAUSED:
+    case APP_STATE_CREDITS_MAIN:
+        title = "CREDITS";
+        body = "Made by Andrea Soprani (sprn.it)\n"
+               "Planet sprites by localthunk (Balatro)\n"
+               "Physics system inspired by Pikuma\n"
+               "(pikuma.com/courses/game-physics-engine-programming)\n\n"
+               "[SPACE]/[ESC]: back";
         break;
     }
 
     const float main_font_size = 30;
     const float keys_font_size = 20;
     const float main_spacing = 3;
-    const float small_texts_spacing = 2;
-    const float v_small_texts_spacing = display_shots ? 10 : 0;
+    const float body_spacing = 2;
 
     const Vector2 center =
         (Vector2) {GetScreenWidth() / 2, GetScreenHeight() / 2};
 
-    Vector2 main_text_size = MeasureTextEx(GetFontDefault(), main_text,
-                                           main_font_size, main_spacing);
-    Vector2 run_text_size = MeasureTextEx(GetFontDefault(), run_text,
-                                          keys_font_size, small_texts_spacing);
-    Vector2 shots_text_size = MeasureTextEx(
-        GetFontDefault(), shots_text, keys_font_size, small_texts_spacing);
+    Vector2 title_size =
+        MeasureTextEx(GetFontDefault(), title, main_font_size, main_spacing);
+    Vector2 body_size =
+        MeasureTextEx(GetFontDefault(), body, keys_font_size, body_spacing);
+    Vector2 shots_text_size = display_shots
+                                  ? MeasureTextEx(GetFontDefault(), shots_text,
+                                                  keys_font_size, body_spacing)
+                                  : (Vector2) {0, 0};
 
     const float padding = 50;
 
-    float rw =
-        fmaxf(main_text_size.x, fmaxf(run_text_size.x, shots_text_size.x)) +
+    float rect_width =
+        fmaxf(title_size.x, fmaxf(body_size.x, shots_text_size.x)) +
         2 * padding;
-    float rh =
-        main_text_size.y + run_text_size.y +
-        (display_shots ? (shots_text_size.y + v_small_texts_spacing) : 0) +
-        3 * padding;
-    float r_outline = 2;
+    float rect_height = title_size.y + body_size.y +
+                        (display_shots ? (shots_text_size.y + padding) : 0) +
+                        3 * padding;
+    float rect_outline = 2;
 
-    DrawRectangle(center.x - (rw + r_outline) / 2,
-                  center.y - (rh + r_outline) / 2, (rw + r_outline),
-                  (rh + r_outline), WHITE);
-    DrawRectangle(center.x - rw / 2, center.y - rh / 2, rw, rh, BLACK);
+    DrawRectangle(center.x - (rect_width + rect_outline) / 2,
+                  center.y - (rect_height + rect_outline) / 2,
+                  (rect_width + rect_outline), (rect_height + rect_outline),
+                  WHITE);
+    DrawRectangle(center.x - rect_width / 2, center.y - rect_height / 2,
+                  rect_width, rect_height, BLACK);
 
-    DrawTextEx(GetFontDefault(), main_text,
-               (Vector2) {center.x - main_text_size.x / 2,
-                          center.y - rh / 2 + padding},
+    DrawTextEx(GetFontDefault(), title,
+               (Vector2) {center.x - title_size.x / 2,
+                          center.y - rect_height / 2 + padding},
                main_font_size, main_spacing, WHITE);
 
-    DrawTextEx(GetFontDefault(), run_text,
-               (Vector2) {center.x - run_text_size.x / 2,
-                          center.y - rh / 2 + 2 * padding + main_text_size.y},
-               keys_font_size, small_texts_spacing, WHITE);
-
     if (display_shots)
-        DrawTextEx(GetFontDefault(), shots_text,
-                   (Vector2) {center.x - shots_text_size.x / 2,
-                              center.y - rh / 2 + 2 * padding +
-                                  main_text_size.y + v_small_texts_spacing +
-                                  run_text_size.y},
-                   keys_font_size, small_texts_spacing, WHITE);
+        DrawTextEx(
+            GetFontDefault(), shots_text,
+            (Vector2) {center.x - shots_text_size.x / 2,
+                       center.y - rect_height / 2 + 2 * padding + title_size.y},
+            keys_font_size, body_spacing, WHITE);
+
+    DrawTextEx(
+        GetFontDefault(), body,
+        (Vector2) {center.x - body_size.x / 2,
+                   center.y - rect_height / 2 + 2 * padding + title_size.y +
+                       (display_shots ? (padding + shots_text_size.y) : 0)},
+        keys_font_size, body_spacing, WHITE);
 }
 
 void render(const app_t *app)

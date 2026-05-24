@@ -1,29 +1,7 @@
 # TODO
 
-- [x] Toggle modes with keys
-- [x] Input mgmt
-- [x] Testing env with initial velocities and steps to test collision with walls
-- [x] Code style
-- [x] Ball number
-- [x] white ball control
-- [x] rendering actual balls (balatro planets?)
-- [x] remove white stroke from planet textures
-- [x] fix ringed planets (saturn & uranus)
-- [x] real masses and relative sizes planets
-- [x] auto-setup of starting positions
-- [x] walls -> polygons
-- [x] holes
-- [x] game loop
-- [x] build for web
-- [x] remove debug mode
-- [x] show full screen on web
-- [x] auto-set gravity on first shot and remove G to toggle
-- [x] shots count in win screen
-- [x] on shot, display click point and offset to guide
-- [x] trajectories
-- [x] fix shots_count update
-- [ ] better shot circle
+- [x] credits
+- [x] instructions on start/pause screen
 - [ ] different starting layouts
 - [ ] render stars in the background
-- [ ] credits
 - [ ] render nice walls (?)

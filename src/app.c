@@ -161,12 +161,37 @@ void pause_frame(app_t *app)
     if (app->input.key_space_pressed) {
         app->state = APP_STATE_RUNNING;
     }
+    if (app->input.key_c_pressed) {
+        app->state = app->state == APP_STATE_PAUSED ? APP_STATE_CREDITS_PAUSED
+                                                    : APP_STATE_CREDITS_MAIN;
+    }
+}
+
+void credits_frame(app_t *app)
+{
+    if (app->input.key_space_pressed || app->input.key_esc_pressed) {
+        app->state = app->state == APP_STATE_CREDITS_PAUSED ? APP_STATE_PAUSED
+                                                            : APP_STATE_MENU;
+    }
 }
 
 void end_game_frame(app_t *app)
 {
+    bool changed = false;
     if (app->input.key_space_pressed) {
         app->state = APP_STATE_RUNNING;
+        changed = true;
+    }
+    if (app->input.key_esc_pressed) {
+        app->state = APP_STATE_MENU;
+        changed = true;
+    }
+    if (app->input.key_c_pressed) {
+        app->state = APP_STATE_CREDITS_MAIN;
+        changed = true;
+    }
+
+    if (changed) {
         free(app->world);
         new_game_setup(app);
     }
@@ -185,6 +210,10 @@ int app_frame(app_t *app)
     case APP_STATE_MENU:
     case APP_STATE_PAUSED:
         pause_frame(app);
+        break;
+    case APP_STATE_CREDITS_PAUSED:
+    case APP_STATE_CREDITS_MAIN:
+        credits_frame(app);
         break;
     case APP_STATE_WIN:
     case APP_STATE_LOSE:
