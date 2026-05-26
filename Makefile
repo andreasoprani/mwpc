@@ -6,6 +6,7 @@ APPNAME = app
 RAYLIB_WEB ?= vendor/raylib-web
 WEB_OUT := web
 WEB_APP := mwpc
+WEB_SHELL := shell.html
 
 build:
 	$(CC) -arch arm64 -o $(APPNAME) ./src/*.c ./src/*/*.c $(LIB) $(CFLAGS) -Wall -Werror
@@ -24,7 +25,7 @@ web:
 		-Os -Wall \
 		-s USE_GLFW=3 \
 		-s ALLOW_MEMORY_GROWTH=1 \
-		--shell-file $(RAYLIB_WEB)/minshell.html \
+		--shell-file $(WEB_SHELL) \
 		--preload-file textures
 
 wr:
