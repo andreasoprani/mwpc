@@ -49,8 +49,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view mwpc-web-latest >/dev/null 2>&1 || \
+          build_version="$(date -u +'%Y.%m.%d')-${GITHUB_SHA::7}"
+          release_title="mwpc-web-build-${build_version}"
+          release_notes="Automatically generated web build for sprn.it/mwpc from commit ${GITHUB_SHA}."
+
+          if gh release view mwpc-web-latest >/dev/null 2>&1; then
+            gh release edit mwpc-web-latest \
+              --title "$release_title" \
+              --notes "$release_notes"
+          else
             gh release create mwpc-web-latest \
-              --title "Latest MWPC web build" \
-              --notes "Automatically generated web build for sprn.it/mwpc."
+              --title "$release_title" \
+              --notes "$release_notes"
+          fi
+
           gh release upload mwpc-web-latest mwpc-web.zip --clobber
