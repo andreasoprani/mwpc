@@ -9,6 +9,10 @@ typedef struct input {
     bool mouse_left_pressed;
     bool mouse_left_released;
 
+    bool touch_down;
+    bool touch_pressed;
+    bool touch_released;
+
     bool key_space_pressed;
     bool key_esc_pressed;
     bool key_c_pressed;

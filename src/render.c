@@ -148,7 +148,41 @@ void render_score(const unsigned int shots_count)
     DrawText(score_text, 5, 5, score_font_size, WHITE);
 }
 
-void render_app_state(const app_state_t state, const unsigned int shots_count)
+static void draw_text_centered(const char *text, const float center_x,
+                               const float y, const float font_size,
+                               const float spacing, const Color color)
+{
+    char line[256];
+    int line_start = 0;
+    int line_length = 0;
+    float line_y = y;
+
+    for (int i = 0;; i++) {
+        if (text[i] != '\n' && text[i] != '\0') {
+            line_length++;
+            continue;
+        }
+
+        memcpy(line, text + line_start, line_length);
+        line[line_length] = '\0';
+
+        Vector2 line_size =
+            MeasureTextEx(GetFontDefault(), line, font_size, spacing);
+        DrawTextEx(GetFontDefault(), line,
+                   (Vector2) {center_x - line_size.x / 2.0f, line_y},
+                   font_size, spacing, color);
+
+        if (text[i] == '\0')
+            break;
+
+        line_start = i + 1;
+        line_length = 0;
+        line_y += line_size.y;
+    }
+}
+
+void render_app_state(const app_state_t state, const unsigned int shots_count,
+                      const render_transform_t transform)
 {
     if (state == APP_STATE_RUNNING)
         return;
@@ -159,38 +193,42 @@ void render_app_state(const app_state_t state, const unsigned int shots_count)
     bool display_shots = false;
     switch (state) {
     case APP_STATE_MENU:
-        title = "Welcome to Milky Way Pool Club!";
-        body = "[SPACE]: start\n"
+        title = "Welcome to\nMilky Way Pool Club!";
+        body = "[SPACE] / [TAP]: start\n"
                "[C]: credits\n"
                "\nIn game:\n"
-               "[LEFT CLICK]: init/release shot\n"
+               "[LCLICK]/touch: aim\n"
+               "Release: shoot\n"
                "[ESC]: pause";
         break;
     case APP_STATE_RUNNING:
         break;
     case APP_STATE_PAUSED:
         title = "PAUSE";
-        body = "[SPACE]: resume\n"
+        body = "[SPACE] / [TAP]: resume\n"
                "\nIn game:\n"
-               "[LEFT CLICK]: init/release shot\n"
+               "[LCLICK]/touch: aim\n"
+               "Release: shoot\n"
                "[ESC]: pause";
         break;
     case APP_STATE_WIN:
         title = "YOU WIN";
-        body = "[SPACE]: play again\n"
+        body = "[SPACE] / [TAP]: play again\n"
                "[C]: credits\n"
                "\nIn game:\n"
-               "[LEFT CLICK]: init/release shot\n"
+               "[LCLICK]/touch: aim\n"
+               "Release: shoot\n"
                "[ESC]: pause";
         snprintf(shots_text, sizeof(shots_text), "Shots: %u", shots_count);
         display_shots = true;
         break;
     case APP_STATE_LOSE:
         title = "GAME OVER";
-        body = "[SPACE]: play again\n"
+        body = "[SPACE] / [TAP]: play again\n"
                "[C]: credits\n"
                "\nIn game:\n"
-               "[LEFT CLICK]: init/release shot\n"
+               "[LCLICK]/touch: aim\n"
+               "Release: shoot\n"
                "[ESC]: pause";
         snprintf(shots_text, sizeof(shots_text), "Shots: %u", shots_count);
         display_shots = true;
@@ -202,14 +240,19 @@ void render_app_state(const app_state_t state, const unsigned int shots_count)
                "Planet sprites by localthunk (Balatro)\n"
                "Physics system inspired by Pikuma\n"
                "(pikuma.com/courses/game-physics-engine-programming)\n\n"
-               "[SPACE]/[ESC]: back";
+               "[SPACE] / [ESC] / [TAP]: back";
         break;
     }
 
-    const float main_font_size = 30;
-    const float keys_font_size = 20;
-    const float main_spacing = 3;
-    const float body_spacing = 2;
+    const float screen_min = fminf(GetScreenWidth(), GetScreenHeight());
+    const float table_min =
+        fminf(TABLE_WIDTH * transform.scale, TABLE_HEIGHT * transform.scale);
+    const float ui_scale = fminf(screen_min, table_min);
+
+    const float main_font_size = fmaxf(20.0f, ui_scale * 0.05f);
+    const float keys_font_size = fmaxf(14.0f, ui_scale * 0.035f);
+    const float main_spacing = fmaxf(1.0f, ui_scale * 0.004f);
+    const float body_spacing = fmaxf(1.0f, ui_scale * 0.003f);
 
     const Vector2 center =
         (Vector2) {GetScreenWidth() / 2, GetScreenHeight() / 2};
@@ -223,7 +266,10 @@ void render_app_state(const app_state_t state, const unsigned int shots_count)
                                                   keys_font_size, body_spacing)
                                   : (Vector2) {0, 0};
 
-    const float padding = 50;
+    const float padding = fmaxf(14.0f, ui_scale * 0.05f);
+
+    const float max_rect_width = TABLE_WIDTH * transform.scale * 0.95f;
+    const float max_rect_height = TABLE_HEIGHT * transform.scale * 0.95f;
 
     float rect_width =
         fmaxf(title_size.x, fmaxf(body_size.x, shots_text_size.x)) +
@@ -231,6 +277,9 @@ void render_app_state(const app_state_t state, const unsigned int shots_count)
     float rect_height = title_size.y + body_size.y +
                         (display_shots ? (shots_text_size.y + padding) : 0) +
                         3 * padding;
+
+    rect_width = fminf(rect_width, max_rect_width);
+    rect_height = fminf(rect_height, max_rect_height);
     float rect_outline = 2;
 
     DrawRectangle(center.x - (rect_width + rect_outline) / 2,
@@ -240,10 +289,8 @@ void render_app_state(const app_state_t state, const unsigned int shots_count)
     DrawRectangle(center.x - rect_width / 2, center.y - rect_height / 2,
                   rect_width, rect_height, BLACK);
 
-    DrawTextEx(GetFontDefault(), title,
-               (Vector2) {center.x - title_size.x / 2,
-                          center.y - rect_height / 2 + padding},
-               main_font_size, main_spacing, WHITE);
+    draw_text_centered(title, center.x, center.y - rect_height / 2 + padding,
+                       main_font_size, main_spacing, WHITE);
 
     if (display_shots)
         DrawTextEx(
@@ -278,7 +325,7 @@ void render(const app_t *app)
 
     render_score(app->shots_count);
 
-    render_app_state(app->state, app->shots_count);
+    render_app_state(app->state, app->shots_count, transform);
 
     EndDrawing();
 }

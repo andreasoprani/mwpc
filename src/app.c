@@ -111,10 +111,10 @@ void app_destroy(app_t *app)
 
 void apply_game_inputs(app_t *app)
 {
-    if (app->input.mouse_left_pressed)
+    if (app->input.mouse_left_pressed || app->input.touch_pressed)
         app_init_shot(app);
 
-    if (app->input.mouse_left_released)
+    if (app->input.mouse_left_released || app->input.touch_released)
         app_apply_shot(app);
 
     if (app->shot != NULL)
@@ -158,7 +158,7 @@ void running_frame(app_t *app)
 
 void pause_frame(app_t *app)
 {
-    if (app->input.key_space_pressed) {
+    if (app->input.key_space_pressed || app->input.touch_released) {
         app->state = APP_STATE_RUNNING;
     }
     if (app->input.key_c_pressed) {
@@ -169,7 +169,8 @@ void pause_frame(app_t *app)
 
 void credits_frame(app_t *app)
 {
-    if (app->input.key_space_pressed || app->input.key_esc_pressed) {
+    if (app->input.key_space_pressed || app->input.key_esc_pressed ||
+        app->input.touch_released) {
         app->state = app->state == APP_STATE_CREDITS_PAUSED ? APP_STATE_PAUSED
                                                             : APP_STATE_MENU;
     }
@@ -178,7 +179,7 @@ void credits_frame(app_t *app)
 void end_game_frame(app_t *app)
 {
     bool changed = false;
-    if (app->input.key_space_pressed) {
+    if (app->input.key_space_pressed || app->input.touch_released) {
         app->state = APP_STATE_RUNNING;
         changed = true;
     }
